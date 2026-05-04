@@ -301,8 +301,26 @@ module.exports = grammar({
         ),
 
         /****This is the symbol literals from section 16.8 (Page 99) of the dart specification****************/
-        symbol_literal: $ => seq('#', $.identifier),
-        //symbol literal can also be an operator?
+        // Dart symbols accept a dotted identifier list (e.g. `#foo.bar.baz`)
+        // or a single operator (e.g. `#+`, `#==`). See Dart language spec
+        // section 'Symbols'.
+        symbol_literal: $ => prec.right(seq(
+            '#',
+            choice(
+                sep1($.identifier, '.'),
+                $.equality_operator,
+                $.relational_operator,
+                $.shift_operator,
+                $.additive_operator,
+                $.multiplicative_operator,
+                '~',
+                '|',
+                '&',
+                '^',
+                '[]',
+                '[]=',
+            ),
+        )),
 
         /**************************************************************************************************
         *********************************Numeric Literals**************************************************
@@ -573,6 +591,9 @@ module.exports = grammar({
             seq(
                 '(',
                 choice(
+                    // `(label: expr,)` — single named field with mandatory
+                    // trailing comma to disambiguate from a labeled paren-expr.
+                    seq($.label, $._expression, ','),
                     seq($.label, $._expression),
                     seq($._expression, ','),
                     commaSep2TrailingComma($.record_field),
@@ -2796,7 +2817,9 @@ module.exports = grammar({
 
         script_tag: $ => seq('#!', /.+/, '\n'),
 
-        library_name: $ => seq(optional($._metadata), 'library', $.dotted_identifier_list, $._semicolon),
+        // Dart 2.19+ allows the unnamed library directive `library;` to
+        // attach a doc comment / annotation to a library file without a name.
+        library_name: $ => seq(optional($._metadata), 'library', optional($.dotted_identifier_list), $._semicolon),
 
         dotted_identifier_list: $ => sep1($.identifier, '.'),
 

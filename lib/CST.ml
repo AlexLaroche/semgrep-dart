@@ -150,8 +150,6 @@ type label = (
 
 type dot_identifier = (Token.t (* "." *) * identifier (*tok*))
 
-type symbol_literal = (Token.t (* "#" *) * identifier (*tok*))
-
 type catch_parameters = (
     Token.t (* "(" *)
   * identifier (*tok*)
@@ -325,6 +323,24 @@ type binary_operator = [
   | `EQEQ of Token.t (* "==" *)
   | `Bitw_op_ of bitwise_operator_
 ]
+
+type symbol_literal = (
+    Token.t (* "#" *)
+  * [
+        `Id_rep_DOT_id of dotted_identifier_list
+      | `Equa_op of equality_operator (*tok*)
+      | `Rela_op of relational_operator
+      | `Shift_op of shift_operator
+      | `Addi_op of additive_operator_ (*tok*)
+      | `Mult_op of multiplicative_operator
+      | `TILDE of Token.t (* "~" *)
+      | `BAR of Token.t (* "|" *)
+      | `AMP of Token.t (* "&" *)
+      | `HAT of Token.t (* "^" *)
+      | `LBRACKRBRACK of Token.t (* "[]" *)
+      | `LBRACKRBRACKEQ of Token.t (* "[]=" *)
+    ]
+)
 
 type qualified = [
     `Type_name_DOT_id_or_new of (
@@ -1120,10 +1136,11 @@ and record_field = (label option * argument)
 
 and record_literal_no_const = [
     `LPAR_RPAR of (Token.t (* "(" *) * Token.t (* ")" *))
-  | `LPAR_choice_label_exp_RPAR of (
+  | `LPAR_choice_label_exp_COMMA_RPAR of (
         Token.t (* "(" *)
       * [
-            `Label_exp of named_argument
+            `Label_exp_COMMA of (label * argument * Token.t (* "," *))
+          | `Label_exp of named_argument
           | `Exp_COMMA of (argument * Token.t (* "," *))
           | `Record_field_rep1_COMMA_record_field_opt_COMMA of (
                 record_field
@@ -1585,7 +1602,7 @@ type anon_choice_type_be0da33 = [
 type library_name = (
     metadata option
   * Token.t (* "library" *)
-  * dotted_identifier_list
+  * dotted_identifier_list option
   * semicolon (*tok*)
 )
 

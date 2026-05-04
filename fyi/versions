@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 86492801c743b68f47f4d34f05b556dd2d2ca3f5
+Latest commit in repo: 367787088e5b456f9403dce8a5f7c0603f56fb67
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,31 +10,27 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 86492801c743b68f47f4d34f05b556dd2d2ca3f5
+Latest commit in repo: 367787088e5b456f9403dce8a5f7c0603f56fb67
 Last change in file:
-  commit 86492801c743b68f47f4d34f05b556dd2d2ca3f5
+  commit 367787088e5b456f9403dce8a5f7c0603f56fb67
   Author: Alexandre Laroche <larochealexandre@hotmail.com>
-  Date:   Mon May 4 17:48:11 2026 -0400
+  Date:   Mon May 4 18:26:41 2026 -0400
   
-      Allow built-in identifiers as static external field names
+      Allow single-named-field record literal with trailing comma
       
-      `dart:ffi` Struct definitions sometimes declare external fields whose
-      name is a built-in identifier (`get`, `set`, `operator`). For example
-      in the `colibri_stateless` package:
+      A record literal with exactly one named field requires a trailing
+      comma (`(name: value,)`) to be unambiguously a record rather than a
+      labeled parenthesized expression. The grammar previously accepted
+      `(label: expr)` (no comma) and `(label: expr, more,)` (2+ fields)
+      but rejected the unambiguous single-named-field form.
       
-          @ffi.Packed(1)
-          final class colibri_StatusCondition extends ffi.Struct {
-              external colibri_StatusCondition_DataType get;
-          }
-      
-      These names are reserved keywords only in restricted contexts; in field
-      declarations they are valid identifiers. Accept them as aliases of
-      `identifier` in the static external field arm so packages using ffi
-      struct conventions parse cleanly.
+      This pattern shows up in real code returning records with one named
+      component, e.g. `return (prefix: syntheticImport.prefix,);`. See
+      Dart 3 record literal grammar in the language spec.
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 703477af1d3e47ce8736b499ecf1ac8296c98933
+Latest commit in repo: c8629664828be874332333bf4337821d538b7f37
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>

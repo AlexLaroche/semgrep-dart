@@ -291,11 +291,6 @@ let map_dot_identifier (env : env) ((v1, v2) : CST.dot_identifier) =
   let v2 = (* pattern [a-zA-Z_$][\w$]* *) token env v2 in
   R.Tuple [v1; v2]
 
-let map_symbol_literal (env : env) ((v1, v2) : CST.symbol_literal) =
-  let v1 = (* "#" *) token env v1 in
-  let v2 = (* pattern [a-zA-Z_$][\w$]* *) token env v2 in
-  R.Tuple [v1; v2]
-
 let map_catch_parameters (env : env) ((v1, v2, v3, v4) : CST.catch_parameters) =
   let v1 = (* "(" *) token env v1 in
   let v2 = (* pattern [a-zA-Z_$][\w$]* *) token env v2 in
@@ -688,6 +683,50 @@ let map_binary_operator (env : env) (x : CST.binary_operator) =
       map_bitwise_operator_ env x
     )
   )
+
+let map_symbol_literal (env : env) ((v1, v2) : CST.symbol_literal) =
+  let v1 = (* "#" *) token env v1 in
+  let v2 =
+    (match v2 with
+    | `Id_rep_DOT_id x -> R.Case ("Id_rep_DOT_id",
+        map_dotted_identifier_list env x
+      )
+    | `Equa_op tok -> R.Case ("Equa_op",
+        (* equality_operator *) token env tok
+      )
+    | `Rela_op x -> R.Case ("Rela_op",
+        map_relational_operator env x
+      )
+    | `Shift_op x -> R.Case ("Shift_op",
+        map_shift_operator env x
+      )
+    | `Addi_op tok -> R.Case ("Addi_op",
+        (* additive_operator_ *) token env tok
+      )
+    | `Mult_op x -> R.Case ("Mult_op",
+        map_multiplicative_operator env x
+      )
+    | `TILDE tok -> R.Case ("TILDE",
+        (* "~" *) token env tok
+      )
+    | `BAR tok -> R.Case ("BAR",
+        (* "|" *) token env tok
+      )
+    | `AMP tok -> R.Case ("AMP",
+        (* "&" *) token env tok
+      )
+    | `HAT tok -> R.Case ("HAT",
+        (* "^" *) token env tok
+      )
+    | `LBRACKRBRACK tok -> R.Case ("LBRACKRBRACK",
+        (* "[]" *) token env tok
+      )
+    | `LBRACKRBRACKEQ tok -> R.Case ("LBRACKRBRACKEQ",
+        (* "[]=" *) token env tok
+      )
+    )
+  in
+  R.Tuple [v1; v2]
 
 let map_qualified (env : env) (x : CST.qualified) =
   (match x with
@@ -2771,10 +2810,16 @@ and map_record_literal_no_const (env : env) (x : CST.record_literal_no_const) =
       let v2 = (* ")" *) token env v2 in
       R.Tuple [v1; v2]
     )
-  | `LPAR_choice_label_exp_RPAR (v1, v2, v3) -> R.Case ("LPAR_choice_label_exp_RPAR",
+  | `LPAR_choice_label_exp_COMMA_RPAR (v1, v2, v3) -> R.Case ("LPAR_choice_label_exp_COMMA_RPAR",
       let v1 = (* "(" *) token env v1 in
       let v2 =
         (match v2 with
+        | `Label_exp_COMMA (v1, v2, v3) -> R.Case ("Label_exp_COMMA",
+            let v1 = map_label env v1 in
+            let v2 = map_argument env v2 in
+            let v3 = (* "," *) token env v3 in
+            R.Tuple [v1; v2; v3]
+          )
         | `Label_exp x -> R.Case ("Label_exp",
             map_named_argument env x
           )
@@ -3921,7 +3966,13 @@ let map_library_name (env : env) ((v1, v2, v3, v4) : CST.library_name) =
     | None -> R.Option None)
   in
   let v2 = (* "library" *) token env v2 in
-  let v3 = map_dotted_identifier_list env v3 in
+  let v3 =
+    (match v3 with
+    | Some x -> R.Option (Some (
+        map_dotted_identifier_list env x
+      ))
+    | None -> R.Option None)
+  in
   let v4 = (* semicolon *) token env v4 in
   R.Tuple [v1; v2; v3; v4]
 
