@@ -248,13 +248,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "identifier");
     ];
   );
-  "label",
-  Some (
-    Seq [
-      Token (Name "identifier");
-      Token (Literal ":");
-    ];
-  );
   "additive_operator",
   Some (
     Token (Name "additive_operator_");
@@ -351,6 +344,18 @@ let children_regexps : (string * Run.exp option) list = [
   "escape_sequence",
   Some (
     Token (Name "unused_escape_sequence");
+  );
+  "label",
+  Some (
+    Seq [
+      Alt [|
+        Token (Name "identifier");
+        Token (Name "get");
+        Token (Name "set");
+        Token (Name "function_builtin_identifier");
+      |];
+      Token (Literal ":");
+    ];
   );
   "multiplicative_operator",
   Some (
@@ -1040,6 +1045,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "identifier");
         Token (Name "get");
         Token (Name "set");
+        Token (Name "operator");
       |];
     ];
   );
@@ -1532,6 +1538,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "identifier");
         Token (Name "get");
         Token (Name "set");
+        Token (Name "operator");
       |];
       Opt (
         Seq [
@@ -4771,19 +4778,6 @@ let rec trans_scoped_identifier ((kind, body) : mt) : CST.scoped_identifier =
       )
   | Leaf _ -> assert false
 
-let trans_label ((kind, body) : mt) : CST.label =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1] ->
-          (
-            trans_identifier (Run.matcher_token v0),
-            Run.trans_token (Run.matcher_token v1)
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
-
 
 let trans_additive_operator ((kind, body) : mt) : CST.additive_operator =
   match body with
@@ -4973,6 +4967,38 @@ let trans_escape_sequence ((kind, body) : mt) : CST.escape_sequence =
   match body with
   | Children v ->
       trans_unused_escape_sequence (Run.matcher_token v)
+  | Leaf _ -> assert false
+
+let trans_label ((kind, body) : mt) : CST.label =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1] ->
+          (
+            (match v0 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Get (
+                  trans_get (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Set (
+                  trans_set (Run.matcher_token v)
+                )
+            | Alt (3, v) ->
+                `Func_buil_id (
+                  trans_function_builtin_identifier (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
+            Run.trans_token (Run.matcher_token v1)
+          )
+      | _ -> assert false
+      )
   | Leaf _ -> assert false
 
 let trans_multiplicative_operator ((kind, body) : mt) : CST.multiplicative_operator =
@@ -6455,6 +6481,10 @@ and trans_declared_identifier ((kind, body) : mt) : CST.declared_identifier =
                 `Set (
                   trans_set (Run.matcher_token v)
                 )
+            | Alt (3, v) ->
+                `Op (
+                  trans_operator (Run.matcher_token v)
+                )
             | _ -> assert false
             )
           )
@@ -7472,6 +7502,10 @@ and trans_initialized_identifier ((kind, body) : mt) : CST.initialized_identifie
             | Alt (2, v) ->
                 `Set (
                   trans_set (Run.matcher_token v)
+                )
+            | Alt (3, v) ->
+                `Op (
+                  trans_operator (Run.matcher_token v)
                 )
             | _ -> assert false
             )

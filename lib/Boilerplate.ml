@@ -373,7 +373,22 @@ let rec map_ambiguous_name (env : env) (x : CST.ambiguous_name) =
   )
 
 let map_label (env : env) ((v1, v2) : CST.label) =
-  let v1 = (* pattern [a-zA-Z_$][\w$]* *) token env v1 in
+  let v1 =
+    (match v1 with
+    | `Id tok -> R.Case ("Id",
+        (* pattern [a-zA-Z_$][\w$]* *) token env tok
+      )
+    | `Get tok -> R.Case ("Get",
+        (* "get" *) token env tok
+      )
+    | `Set tok -> R.Case ("Set",
+        (* "set" *) token env tok
+      )
+    | `Func_buil_id tok -> R.Case ("Func_buil_id",
+        (* "Function" *) token env tok
+      )
+    )
+  in
   let v2 = (* ":" *) token env v2 in
   R.Tuple [v1; v2]
 
@@ -428,7 +443,7 @@ let map_symbol_literal (env : env) ((v1, v2) : CST.symbol_literal) =
   let v2 = (* pattern [a-zA-Z_$][\w$]* *) token env v2 in
   R.Tuple [v1; v2]
 
-let map_anon_choice_id_2354d68 (env : env) (x : CST.anon_choice_id_2354d68) =
+let map_anon_choice_id_09b9dad (env : env) (x : CST.anon_choice_id_09b9dad) =
   (match x with
   | `Id tok -> R.Case ("Id",
       (* pattern [a-zA-Z_$][\w$]* *) token env tok
@@ -438,6 +453,9 @@ let map_anon_choice_id_2354d68 (env : env) (x : CST.anon_choice_id_2354d68) =
     )
   | `Set tok -> R.Case ("Set",
       (* "set" *) token env tok
+    )
+  | `Op tok -> R.Case ("Op",
+      (* "operator" *) token env tok
     )
   )
 
@@ -1241,7 +1259,7 @@ and map_declared_identifier (env : env) ((v1, v2, v3, v4) : CST.declared_identif
     | None -> R.Option None)
   in
   let v3 = map_final_const_var_or_type env v3 in
-  let v4 = map_anon_choice_id_2354d68 env v4 in
+  let v4 = map_anon_choice_id_09b9dad env v4 in
   R.Tuple [v1; v2; v3; v4]
 
 and map_default_formal_parameter (env : env) ((v1, v2) : CST.default_formal_parameter) =
@@ -1852,7 +1870,7 @@ and map_index_selector (env : env) ((v1, v2, v3) : CST.index_selector) =
   R.Tuple [v1; v2; v3]
 
 and map_initialized_identifier (env : env) ((v1, v2) : CST.initialized_identifier) =
-  let v1 = map_anon_choice_id_2354d68 env v1 in
+  let v1 = map_anon_choice_id_09b9dad env v1 in
   let v2 =
     (match v2 with
     | Some (v1, v2) -> R.Option (Some (
@@ -2980,7 +2998,19 @@ and map_simple_formal_parameter (env : env) (x : CST.simple_formal_parameter) =
           ))
         | None -> R.Option None)
       in
-      let v2 = map_anon_choice_id_2354d68 env v2 in
+      let v2 =
+        (match v2 with
+        | `Id tok -> R.Case ("Id",
+            (* pattern [a-zA-Z_$][\w$]* *) token env tok
+          )
+        | `Get tok -> R.Case ("Get",
+            (* "get" *) token env tok
+          )
+        | `Set tok -> R.Case ("Set",
+            (* "set" *) token env tok
+          )
+        )
+      in
       R.Tuple [v1; v2]
     )
   )

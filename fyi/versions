@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: d4eecbbe2790725bf57ec891fea40c1c6836adde
+Latest commit in repo: 3074c9dc8d6a60e991995ac70034a3c88a53238c
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,42 +10,37 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: d4eecbbe2790725bf57ec891fea40c1c6836adde
+Latest commit in repo: 3074c9dc8d6a60e991995ac70034a3c88a53238c
 Last change in file:
-  commit d4eecbbe2790725bf57ec891fea40c1c6836adde
+  commit 3074c9dc8d6a60e991995ac70034a3c88a53238c
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 12:16:26 2026 -0400
+  Date:   Mon May 4 12:46:04 2026 -0400
   
-      Support abstract instance fields and top-level external variables
+      Allow `get`/`set`/`Function` as label and `operator` as identifier
       
-      Two related Dart 3 declaration forms were missing:
+      Two more built-in identifier sites the grammar did not yet treat as
+      ordinary identifiers:
       
-      1. Abstract instance fields. Per the Dart spec, an instance field
-         inside an abstract class may be declared without an initializer
-         using the `abstract` modifier; the field has no implementation and
-         subclasses must provide a concrete getter/setter. Forms supported:
-             abstract <type>? <ids>;
-             abstract final <type>? <ids>;
-             abstract covariant <type>? <ids>;
-         Affects packages such as `embrace`, `crypto_wallet_util`, and
-         `catalyst_builder`.
+      - `label` only accepted `\$.identifier`, so named arguments like
+        `f(get: x, set: y)` failed to parse. Real-world example:
+        `datahub_aperture` constructs `ResourceEndpoint(get: ..., post: ...)`.
+      - `initialized_identifier` and `_declared_identifier` did not accept
+        `operator` as an identifier, so `String operator;` did not parse.
+        Real-world example: `ffastdb` declares a `String operator;` field.
       
-      2. Top-level external variable declarations. Used by `dart:js_interop`
-         patterns such as `@JS() external _DdLogs? DD_LOGS;`. The existing
-         `_top_level_definition` choice supported `external function/getter/
-         setter` signatures but not external variables. Forms supported:
-             external <type>? <ids>;
-             external final <type>? <ids>;
-             external late <type>? <ids>;
-         Affects packages such as `datadog_flutter_plugin`, `dwds`, and
-         `ditto_live`.
+      Adds aliased `_get`, `_set`, `_function_builtin_identifier` choices
+      to `label`, and aliased `_operator` to both `initialized_identifier`
+      and `_declared_identifier`. Also adds a GLR conflict between
+      `operator_signature` and `_var_or_type` so the parser keeps both
+      the operator-method-signature path (`Type operator +(...)`) and the
+      variable-declaration path (`Type operator;`) open.
       
-      Reference: Dart Language Specification — Abstract Instance Variables
-      and (Static) External Variables.
+      Reference: Dart Language Specification — Built-in Identifiers
+      (`get`, `set`, `operator`, `Function`).
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: ed1bda985f034073c222e4985053d16dab171b6b
+Latest commit in repo: ce1b562ab2c4d816e0644958607525886cb4cbcb
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>

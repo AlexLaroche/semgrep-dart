@@ -185,7 +185,15 @@ type ambiguous_name = [
   | `Scoped_id of (ambiguous_name * Token.t (* "." *) * identifier (*tok*))
 ]
 
-type label = (identifier (*tok*) * Token.t (* ":" *))
+type label = (
+    [
+        `Id of identifier (*tok*)
+      | `Get of Token.t (* "get" *)
+      | `Set of Token.t (* "set" *)
+      | `Func_buil_id of Token.t (* "Function" *)
+    ]
+  * Token.t (* ":" *)
+)
 
 type dot_identifier = (Token.t (* "." *) * identifier (*tok*))
 
@@ -210,10 +218,11 @@ type identifier_or_new = [
 
 type symbol_literal = (Token.t (* "#" *) * identifier (*tok*))
 
-type anon_choice_id_2354d68 = [
+type anon_choice_id_09b9dad = [
     `Id of identifier (*tok*)
   | `Get of Token.t (* "get" *)
   | `Set of Token.t (* "set" *)
+  | `Op of Token.t (* "operator" *)
 ]
 
 type identifier_list_ = (
@@ -551,7 +560,7 @@ and declared_identifier = (
     metadata option
   * Token.t (* "covariant" *) option
   * final_const_var_or_type
-  * anon_choice_id_2354d68
+  * anon_choice_id_09b9dad
 )
 
 and default_formal_parameter = (
@@ -772,7 +781,7 @@ and if_null_expression =
 and index_selector = (Token.t (* "[" *) * argument * Token.t (* "]" *))
 
 and initialized_identifier = (
-    anon_choice_id_2354d68
+    anon_choice_id_09b9dad
   * (Token.t (* "=" *) * argument) option
 )
 
@@ -1202,7 +1211,11 @@ and simple_formal_parameter = [
     `Decl_id of declared_identifier
   | `Opt_cova_choice_id of (
         Token.t (* "covariant" *) option
-      * anon_choice_id_2354d68
+      * [
+            `Id of identifier (*tok*)
+          | `Get of Token.t (* "get" *)
+          | `Set of Token.t (* "set" *)
+        ]
     )
 ]
 
