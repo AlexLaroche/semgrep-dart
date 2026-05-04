@@ -395,6 +395,9 @@ and assignable_expression = [
         constructor_invocation * assignable_selector_part
     )
   | `Id of identifier (*tok*)
+  | `Get of Token.t (* "get" *)
+  | `Set of Token.t (* "set" *)
+  | `Func_buil_id of Token.t (* "Function" *)
 ]
 
 and assignable_selector = [
@@ -1025,6 +1028,7 @@ and primary = [
   | `Id of identifier (*tok*)
   | `Get of Token.t (* "get" *)
   | `Set of Token.t (* "set" *)
+  | `Func_buil_id of Token.t (* "Function" *)
   | `Func_exp of (formal_parameter_part * function_expression_body)
   | `New_exp of (
         Token.t (* "new" *)

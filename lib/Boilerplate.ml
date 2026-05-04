@@ -870,6 +870,15 @@ and map_assignable_expression (env : env) (x : CST.assignable_expression) =
   | `Id tok -> R.Case ("Id",
       (* pattern [a-zA-Z_$][\w$]* *) token env tok
     )
+  | `Get tok -> R.Case ("Get",
+      (* "get" *) token env tok
+    )
+  | `Set tok -> R.Case ("Set",
+      (* "set" *) token env tok
+    )
+  | `Func_buil_id tok -> R.Case ("Func_buil_id",
+      (* "Function" *) token env tok
+    )
   )
 
 and map_assignable_selector (env : env) (x : CST.assignable_selector) =
@@ -2514,6 +2523,9 @@ and map_primary (env : env) (x : CST.primary) =
     )
   | `Set tok -> R.Case ("Set",
       (* "set" *) token env tok
+    )
+  | `Func_buil_id tok -> R.Case ("Func_buil_id",
+      (* "Function" *) token env tok
     )
   | `Func_exp (v1, v2) -> R.Case ("Func_exp",
       let v1 = map_formal_parameter_part env v1 in

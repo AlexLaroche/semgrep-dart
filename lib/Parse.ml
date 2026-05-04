@@ -693,6 +693,9 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "assignable_selector_part");
       ];
       Token (Name "identifier");
+      Token (Name "get");
+      Token (Name "set");
+      Token (Name "function_builtin_identifier");
     |];
   );
   "assignable_selector",
@@ -2143,6 +2146,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "identifier");
       Token (Name "get");
       Token (Name "set");
+      Token (Name "function_builtin_identifier");
       Token (Name "function_expression");
       Token (Name "new_expression");
       Token (Name "const_object_expression");
@@ -5698,6 +5702,18 @@ and trans_assignable_expression ((kind, body) : mt) : CST.assignable_expression 
           `Id (
             trans_identifier (Run.matcher_token v)
           )
+      | Alt (4, v) ->
+          `Get (
+            trans_get (Run.matcher_token v)
+          )
+      | Alt (5, v) ->
+          `Set (
+            trans_set (Run.matcher_token v)
+          )
+      | Alt (6, v) ->
+          `Func_buil_id (
+            trans_function_builtin_identifier (Run.matcher_token v)
+          )
       | _ -> assert false
       )
   | Leaf _ -> assert false
@@ -8648,26 +8664,30 @@ and trans_primary ((kind, body) : mt) : CST.primary =
             trans_set (Run.matcher_token v)
           )
       | Alt (4, v) ->
+          `Func_buil_id (
+            trans_function_builtin_identifier (Run.matcher_token v)
+          )
+      | Alt (5, v) ->
           `Func_exp (
             trans_function_expression (Run.matcher_token v)
           )
-      | Alt (5, v) ->
+      | Alt (6, v) ->
           `New_exp (
             trans_new_expression (Run.matcher_token v)
           )
-      | Alt (6, v) ->
+      | Alt (7, v) ->
           `Const_obj_exp (
             trans_const_object_expression (Run.matcher_token v)
           )
-      | Alt (7, v) ->
+      | Alt (8, v) ->
           `Paren_exp (
             trans_parenthesized_expression (Run.matcher_token v)
           )
-      | Alt (8, v) ->
+      | Alt (9, v) ->
           `This (
             trans_this (Run.matcher_token v)
           )
-      | Alt (9, v) ->
+      | Alt (10, v) ->
           `Super_unco_assi_sele (
             (match v with
             | Seq [v0; v1] ->
@@ -8678,15 +8698,15 @@ and trans_primary ((kind, body) : mt) : CST.primary =
             | _ -> assert false
             )
           )
-      | Alt (10, v) ->
+      | Alt (11, v) ->
           `Cons_tear (
             trans_constructor_tearoff (Run.matcher_token v)
           )
-      | Alt (11, v) ->
+      | Alt (12, v) ->
           `Switch_exp (
             trans_switch_expression (Run.matcher_token v)
           )
-      | Alt (12, v) ->
+      | Alt (13, v) ->
           `Dot_shor (
             trans_dot_shorthand (Run.matcher_token v)
           )

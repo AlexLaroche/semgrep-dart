@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 1da07ad631709ae3a01e37d547514b11d1fd7c49
+Latest commit in repo: aa6c0b2d07aa7f5d08c085778775511e4be1de99
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,41 +10,40 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 1da07ad631709ae3a01e37d547514b11d1fd7c49
+Latest commit in repo: aa6c0b2d07aa7f5d08c085778775511e4be1de99
 Last change in file:
-  commit 1da07ad631709ae3a01e37d547514b11d1fd7c49
+  commit aa6c0b2d07aa7f5d08c085778775511e4be1de99
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 11:02:02 2026 -0400
+  Date:   Mon May 4 11:51:14 2026 -0400
   
-      Allow `get`/`set` as identifier in initialized_identifier
+      Allow `get`/`set`/`Function` as identifier in assignable expressions
       
-      Per the Dart specification, `get` and `set` are built-in identifiers
-      (not reserved words) and may be used as ordinary identifiers — for
-      example as the name of a local variable or a class field with an
-      explicit type. The `_declared_identifier` rule already aliases
-      `_get`/`_set` to `identifier`; mirror that on `initialized_identifier`
-      so declarations like
+      Per the Dart specification, `get`, `set`, and `Function` are built-in
+      identifiers and may appear as ordinary identifiers — including on the
+      left-hand side of an assignment, or as the receiver of a method call.
       
-          class C {
-            int set = 0;
-            String get = 'foo';
-          }
+      Real-world packages such as `sqlparser` (`set = ...`) and
+      `auro_stream_live` (`Function.apply(...)`) failed to parse because:
       
-      parse correctly. Without this change, the grammar fell back to the
-      getter/setter declaration rules (which require an initializer-less
-      signature) and failed in real-world packages such as `sqlparser` and
-      `s_packages` that use `set`/`get` as field names.
+      - `assignable_expression` only accepted `$.identifier` for the
+        bare-identifier case, so `set = expr` and `get = expr` parsed as
+        the start of a setter/getter signature instead of an assignment.
+      - `_primary` did not include `Function` as an identifier, so
+        `Function.apply(args)` could not be parsed as a method call (the
+        `Function` class is referenced by name).
       
-      Adds GLR conflicts so the parser keeps the variable-declaration and
-      getter/setter signature paths open while reading `Type get` /
-      `Type set`.
+      Adds aliased `_get`, `_set`, and `_function_builtin_identifier`
+      choices to both `_primary` and `assignable_expression`, plus the
+      required GLR conflicts (`_primary` vs. `_type_not_void_not_function`
+      / `_function_type_tail`) so the parser can still recognize `Function`
+      as part of a function type (`Function(int)`, `Function?`).
       
       Reference: Dart Language Specification — Built-in Identifiers
-      (`get`, `set`) and Variable Declaration / initializedIdentifier.
+      (`get`, `set`, `Function`).
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 52b8ff6d151fe6d5b87d31e639d1373790b1ed9e
+Latest commit in repo: 89f1160df44d24e25fe3c81285235c97e619436c
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
