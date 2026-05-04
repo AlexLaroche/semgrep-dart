@@ -838,7 +838,10 @@ let children_regexps : (string * Run.exp option) list = [
       |];
       Token (Name "cascade_selector");
       Repeat (
-        Token (Name "argument_part");
+        Alt [|
+          Token (Name "argument_part");
+          Token (Name "exclamation_operator");
+        |];
       );
       Repeat (
         Token (Name "cascade_subsection");
@@ -865,7 +868,10 @@ let children_regexps : (string * Run.exp option) list = [
     Seq [
       Token (Name "assignable_selector");
       Repeat (
-        Token (Name "argument_part");
+        Alt [|
+          Token (Name "argument_part");
+          Token (Name "exclamation_operator");
+        |];
       );
     ];
   );
@@ -3527,7 +3533,12 @@ let children_regexps : (string * Run.exp option) list = [
       Seq [
         Token (Name "external_and_static");
         Token (Name "type");
-        Token (Name "identifier");
+        Alt [|
+          Token (Name "identifier");
+          Token (Name "get");
+          Token (Name "set");
+          Token (Name "operator");
+        |];
       ];
       Seq [
         Token (Name "static");
@@ -6094,7 +6105,19 @@ and trans_cascade_section ((kind, body) : mt) : CST.cascade_section =
             ,
             trans_cascade_selector (Run.matcher_token v1),
             Run.repeat
-              (fun v -> trans_argument_part (Run.matcher_token v))
+              (fun v ->
+                (match v with
+                | Alt (0, v) ->
+                    `Arg_part (
+                      trans_argument_part (Run.matcher_token v)
+                    )
+                | Alt (1, v) ->
+                    `Excl_op (
+                      trans_exclamation_operator (Run.matcher_token v)
+                    )
+                | _ -> assert false
+                )
+              )
               v2
             ,
             Run.repeat
@@ -6145,7 +6168,19 @@ and trans_cascade_subsection ((kind, body) : mt) : CST.cascade_subsection =
           (
             trans_assignable_selector (Run.matcher_token v0),
             Run.repeat
-              (fun v -> trans_argument_part (Run.matcher_token v))
+              (fun v ->
+                (match v with
+                | Alt (0, v) ->
+                    `Arg_part (
+                      trans_argument_part (Run.matcher_token v)
+                    )
+                | Alt (1, v) ->
+                    `Excl_op (
+                      trans_exclamation_operator (Run.matcher_token v)
+                    )
+                | _ -> assert false
+                )
+              )
               v1
           )
       | _ -> assert false
@@ -11677,13 +11712,31 @@ let trans_declaration_ ((kind, body) : mt) : CST.declaration_ =
             )
           )
       | Alt (11, v) ->
-          `Exte_and_static_type_id (
+          `Exte_and_static_type_choice_id (
             (match v with
             | Seq [v0; v1; v2] ->
                 (
                   trans_external_and_static (Run.matcher_token v0),
                   trans_type_ (Run.matcher_token v1),
-                  trans_identifier (Run.matcher_token v2)
+                  (match v2 with
+                  | Alt (0, v) ->
+                      `Id (
+                        trans_identifier (Run.matcher_token v)
+                      )
+                  | Alt (1, v) ->
+                      `Get (
+                        trans_get (Run.matcher_token v)
+                      )
+                  | Alt (2, v) ->
+                      `Set (
+                        trans_set (Run.matcher_token v)
+                      )
+                  | Alt (3, v) ->
+                      `Op (
+                        trans_operator (Run.matcher_token v)
+                      )
+                  | _ -> assert false
+                  )
                 )
             | _ -> assert false
             )

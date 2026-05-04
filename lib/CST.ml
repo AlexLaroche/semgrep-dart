@@ -356,6 +356,11 @@ and annotation = (
     ]
 )
 
+and anon_choice_arg_part_7fd04ec = [
+    `Arg_part of argument_part
+  | `Excl_op of Token.t (* "!" *)
+]
+
 and anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f = (
     element
   * (Token.t (* "," *) * element) list (* zero or more *)
@@ -464,7 +469,7 @@ and cascade_assignment_section = (
 and cascade_section = (
     [ `DOTDOT of Token.t (* ".." *) | `QMARKDOTDOT of Token.t (* "?.." *) ]
   * cascade_selector
-  * argument_part list (* zero or more *)
+  * anon_choice_arg_part_7fd04ec list (* zero or more *)
   * cascade_subsection list (* zero or more *)
   * cascade_assignment_section option
 )
@@ -476,7 +481,7 @@ and cascade_selector = [
 
 and cascade_subsection = (
     assignable_selector
-  * argument_part list (* zero or more *)
+  * anon_choice_arg_part_7fd04ec list (* zero or more *)
 )
 
 and conditional_assignable_selector = [
@@ -1810,8 +1815,8 @@ type declaration_ = [
         external_and_static option
       * function_signature
     )
-  | `Exte_and_static_type_id of (
-        external_and_static * type_ * identifier (*tok*)
+  | `Exte_and_static_type_choice_id of (
+        external_and_static * type_ * anon_choice_id_09b9dad
     )
   | `Static_func_sign of (Token.t (* "static" *) * function_signature)
   | `Static_choice_final_or_const_opt_type_static_final_decl_list of (

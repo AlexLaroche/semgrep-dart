@@ -758,6 +758,16 @@ and map_annotation (env : env) ((v1, v2, v3) : CST.annotation) =
   in
   R.Tuple [v1; v2; v3]
 
+and map_anon_choice_arg_part_7fd04ec (env : env) (x : CST.anon_choice_arg_part_7fd04ec) =
+  (match x with
+  | `Arg_part x -> R.Case ("Arg_part",
+      map_argument_part env x
+    )
+  | `Excl_op tok -> R.Case ("Excl_op",
+      (* "!" *) token env tok
+    )
+  )
+
 and map_anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f (env : env) ((v1, v2, v3) : CST.anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f) =
   let v1 = map_element env v1 in
   let v2 =
@@ -1010,7 +1020,9 @@ and map_cascade_section (env : env) ((v1, v2, v3, v4, v5) : CST.cascade_section)
     )
   in
   let v2 = map_cascade_selector env v2 in
-  let v3 = R.List (List.map (map_argument_part env) v3) in
+  let v3 =
+    R.List (List.map (map_anon_choice_arg_part_7fd04ec env) v3)
+  in
   let v4 =
     R.List (List.map (map_cascade_subsection env) v4)
   in
@@ -1043,7 +1055,9 @@ and map_cascade_selector (env : env) (x : CST.cascade_selector) =
 
 and map_cascade_subsection (env : env) ((v1, v2) : CST.cascade_subsection) =
   let v1 = map_assignable_selector env v1 in
-  let v2 = R.List (List.map (map_argument_part env) v2) in
+  let v2 =
+    R.List (List.map (map_anon_choice_arg_part_7fd04ec env) v2)
+  in
   R.Tuple [v1; v2]
 
 and map_conditional_assignable_selector (env : env) (x : CST.conditional_assignable_selector) =
@@ -4462,10 +4476,10 @@ let map_declaration_ (env : env) (x : CST.declaration_) =
       let v2 = map_function_signature env v2 in
       R.Tuple [v1; v2]
     )
-  | `Exte_and_static_type_id (v1, v2, v3) -> R.Case ("Exte_and_static_type_id",
+  | `Exte_and_static_type_choice_id (v1, v2, v3) -> R.Case ("Exte_and_static_type_choice_id",
       let v1 = map_external_and_static env v1 in
       let v2 = map_type_ env v2 in
-      let v3 = (* pattern [a-zA-Z_$][\w$]* *) token env v3 in
+      let v3 = map_anon_choice_id_09b9dad env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Static_func_sign (v1, v2) -> R.Case ("Static_func_sign",

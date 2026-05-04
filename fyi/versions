@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: b1f0a632d18910fe5f2bb9e547223b0942457205
+Latest commit in repo: 86492801c743b68f47f4d34f05b556dd2d2ca3f5
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,33 +10,31 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: b1f0a632d18910fe5f2bb9e547223b0942457205
+Latest commit in repo: 86492801c743b68f47f4d34f05b556dd2d2ca3f5
 Last change in file:
-  commit b1f0a632d18910fe5f2bb9e547223b0942457205
-  Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 14:12:19 2026 -0400
+  commit 86492801c743b68f47f4d34f05b556dd2d2ca3f5
+  Author: Alexandre Laroche <larochealexandre@hotmail.com>
+  Date:   Mon May 4 17:48:11 2026 -0400
   
-      Allow null-aware key in map literal entry
+      Allow built-in identifiers as static external field names
       
-      Per Dart 3 (null-aware elements), a map entry may use `?` before the
-      key as well as before the value to mark the corresponding sub-
-      expression as null-aware:
+      `dart:ffi` Struct definitions sometimes declare external fields whose
+      name is a built-in identifier (`get`, `set`, `operator`). For example
+      in the `colibri_stateless` package:
       
-          {
-            ?maybeKey: 1,         // omit entry if maybeKey is null
-            key: ?maybeValue,     // omit entry if maybeValue is null
-            ?maybeKey: ?maybeValue,
+          @ffi.Packed(1)
+          final class colibri_StatusCondition extends ffi.Struct {
+              external colibri_StatusCondition_DataType get;
           }
       
-      The grammar previously allowed `?` only before the value. Adds
-      `optional('?')` before the key in the `pair` rule. Affects packages
-      such as `analyzer` and `drift_dev`.
-      
-      Reference: Dart Language Specification — Null-aware elements.
+      These names are reserved keywords only in restricted contexts; in field
+      declarations they are valid identifiers. Accept them as aliases of
+      `identifier` in the static external field arm so packages using ffi
+      struct conventions parse cleanly.
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 80444bc1f8148836966efe1664ed039ba2b5e45f
+Latest commit in repo: 703477af1d3e47ce8736b499ecf1ac8296c98933
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
