@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
+Latest commit in repo: 39120ae068771f0372653ad356bd5878f645ae06
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,29 +10,34 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
+Latest commit in repo: 39120ae068771f0372653ad356bd5878f645ae06
 Last change in file:
-  commit 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
+  commit 39120ae068771f0372653ad356bd5878f645ae06
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 13:12:33 2026 -0400
+  Date:   Mon May 4 13:34:14 2026 -0400
   
-      Add empty/null statement (`;`)
+      Support external instance fields with `final`/`covariant`
       
-      Per the Dart specification, a single `;` is the empty (null) statement.
-      It can appear anywhere a statement is expected, e.g. as the body of an
-      `if (cond) ;` form, after a `return;` continuation, or as a stray `;`
-      in a function body. The grammar previously had no rule for this, so
-      real-world code using it failed to parse.
+      Per the Dart specification (Static Interop / External Members), a
+      class instance field may be declared with the `external` modifier in
+      combination with `final` or `covariant`. The grammar previously
+      covered only the bare `external <type> <id>` form (via the
+      `_external_and_static + _type + identifier` rule), so
       
-      Adds an `empty_statement` rule and includes it in `_statement`. Affects
-      packages such as `crypto_wallet_util` (`if (!isUint(n, 53)) ;`) and
-      `littlefish_feature_user_pins` (`return; ;`).
+          extension type _Foo._(JSObject _) implements JSObject {
+            external final JSString field;
+          }
       
-      Reference: Dart Language Specification — Statements (emptyStatement).
+      failed to parse. Affects `dart:js_interop` extension types in
+      packages such as `ditto_live`.
+      
+      Adds two new declaration alternatives:
+        external final <type>? <id-list>
+        external covariant <var-or-type> <id-list>
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 9ebb2142b3de882e46f579a5ad476b4a643a249f
+Latest commit in repo: 398fcff3e486764a11f3524a0bd8d16ff14375f0
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>

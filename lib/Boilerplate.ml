@@ -4574,6 +4574,32 @@ let map_declaration_ (env : env) (x : CST.declaration_) =
       let v3 = map_initialized_identifier_list env v3 in
       R.Tuple [v1; v2; v3]
     )
+  | `Exte_choice_final_buil_opt_type_id_list (v1, v2) -> R.Case ("Exte_choice_final_buil_opt_type_id_list",
+      let v1 = (* "external" *) token env v1 in
+      let v2 =
+        (match v2 with
+        | `Final_buil_opt_type_id_list (v1, v2, v3) -> R.Case ("Final_buil_opt_type_id_list",
+            let v1 = (* final_builtin *) token env v1 in
+            let v2 =
+              (match v2 with
+              | Some x -> R.Option (Some (
+                  map_type_ env x
+                ))
+              | None -> R.Option None)
+            in
+            let v3 = map_identifier_list env v3 in
+            R.Tuple [v1; v2; v3]
+          )
+        | `Cova_var_or_type_id_list (v1, v2, v3) -> R.Case ("Cova_var_or_type_id_list",
+            let v1 = (* "covariant" *) token env v1 in
+            let v2 = map_var_or_type env v2 in
+            let v3 = map_identifier_list env v3 in
+            R.Tuple [v1; v2; v3]
+          )
+        )
+      in
+      R.Tuple [v1; v2]
+    )
   | `Abst_choice_final_buil_opt_type_id_list (v1, v2) -> R.Case ("Abst_choice_final_buil_opt_type_id_list",
       let v1 = (* "abstract" *) token env v1 in
       let v2 =

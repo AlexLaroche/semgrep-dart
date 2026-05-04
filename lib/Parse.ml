@@ -3617,6 +3617,23 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "initialized_identifier_list");
       ];
       Seq [
+        Token (Name "external");
+        Alt [|
+          Seq [
+            Token (Name "final_builtin");
+            Opt (
+              Token (Name "type");
+            );
+            Token (Name "identifier_list");
+          ];
+          Seq [
+            Token (Name "covariant");
+            Token (Name "var_or_type");
+            Token (Name "identifier_list");
+          ];
+        |];
+      ];
+      Seq [
         Token (Name "abstract");
         Alt [|
           Seq [
@@ -11894,6 +11911,46 @@ let trans_declaration_ ((kind, body) : mt) : CST.declaration_ =
             )
           )
       | Alt (17, v) ->
+          `Exte_choice_final_buil_opt_type_id_list (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  trans_external_ (Run.matcher_token v0),
+                  (match v1 with
+                  | Alt (0, v) ->
+                      `Final_buil_opt_type_id_list (
+                        (match v with
+                        | Seq [v0; v1; v2] ->
+                            (
+                              trans_final_builtin (Run.matcher_token v0),
+                              Run.opt
+                                (fun v -> trans_type_ (Run.matcher_token v))
+                                v1
+                              ,
+                              trans_identifier_list (Run.matcher_token v2)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | Alt (1, v) ->
+                      `Cova_var_or_type_id_list (
+                        (match v with
+                        | Seq [v0; v1; v2] ->
+                            (
+                              trans_covariant (Run.matcher_token v0),
+                              trans_var_or_type (Run.matcher_token v1),
+                              trans_identifier_list (Run.matcher_token v2)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | _ -> assert false
+                  )
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (18, v) ->
           `Abst_choice_final_buil_opt_type_id_list (
             (match v with
             | Seq [v0; v1] ->

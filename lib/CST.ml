@@ -1870,6 +1870,19 @@ type declaration_ = [
       * var_or_type
       * initialized_identifier_list
     )
+  | `Exte_choice_final_buil_opt_type_id_list of (
+        Token.t (* "external" *)
+      * [
+            `Final_buil_opt_type_id_list of (
+                final_builtin (*tok*)
+              * type_ option
+              * identifier_list
+            )
+          | `Cova_var_or_type_id_list of (
+                Token.t (* "covariant" *) * var_or_type * identifier_list
+            )
+        ]
+    )
   | `Abst_choice_final_buil_opt_type_id_list of (
         Token.t (* "abstract" *)
       * [
