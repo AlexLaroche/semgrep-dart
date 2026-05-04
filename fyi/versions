@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 3074c9dc8d6a60e991995ac70034a3c88a53238c
+Latest commit in repo: 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,37 +10,29 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 3074c9dc8d6a60e991995ac70034a3c88a53238c
+Latest commit in repo: 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
 Last change in file:
-  commit 3074c9dc8d6a60e991995ac70034a3c88a53238c
+  commit 9eb52a34b0bcc1f193d1f96803ecfdd33c175da7
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 12:46:04 2026 -0400
+  Date:   Mon May 4 13:12:33 2026 -0400
   
-      Allow `get`/`set`/`Function` as label and `operator` as identifier
+      Add empty/null statement (`;`)
       
-      Two more built-in identifier sites the grammar did not yet treat as
-      ordinary identifiers:
+      Per the Dart specification, a single `;` is the empty (null) statement.
+      It can appear anywhere a statement is expected, e.g. as the body of an
+      `if (cond) ;` form, after a `return;` continuation, or as a stray `;`
+      in a function body. The grammar previously had no rule for this, so
+      real-world code using it failed to parse.
       
-      - `label` only accepted `\$.identifier`, so named arguments like
-        `f(get: x, set: y)` failed to parse. Real-world example:
-        `datahub_aperture` constructs `ResourceEndpoint(get: ..., post: ...)`.
-      - `initialized_identifier` and `_declared_identifier` did not accept
-        `operator` as an identifier, so `String operator;` did not parse.
-        Real-world example: `ffastdb` declares a `String operator;` field.
+      Adds an `empty_statement` rule and includes it in `_statement`. Affects
+      packages such as `crypto_wallet_util` (`if (!isUint(n, 53)) ;`) and
+      `littlefish_feature_user_pins` (`return; ;`).
       
-      Adds aliased `_get`, `_set`, `_function_builtin_identifier` choices
-      to `label`, and aliased `_operator` to both `initialized_identifier`
-      and `_declared_identifier`. Also adds a GLR conflict between
-      `operator_signature` and `_var_or_type` so the parser keeps both
-      the operator-method-signature path (`Type operator +(...)`) and the
-      variable-declaration path (`Type operator;`) open.
-      
-      Reference: Dart Language Specification — Built-in Identifiers
-      (`get`, `set`, `operator`, `Function`).
+      Reference: Dart Language Specification — Statements (emptyStatement).
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: ce1b562ab2c4d816e0644958607525886cb4cbcb
+Latest commit in repo: 9ebb2142b3de882e46f579a5ad476b4a643a249f
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
