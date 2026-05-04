@@ -8,50 +8,19 @@
 open! Sexplib.Conv
 open Tree_sitter_run
 
-type pat_0017fb0 = Token.t (* pattern .+ *)
-
-type identifier = Token.t (* pattern [a-zA-Z_$][\w$]* *)
-
-type pat_05bf793 = Token.t (* pattern [^*]*\*+([^/*][^*]*\*+)* *)
-
-type relational_operator = [
-    `LT of Token.t (* "<" *)
-  | `GT of Token.t (* ">" *)
-  | `LTEQ of Token.t (* "<=" *)
-  | `GTEQ of Token.t (* ">=" *)
+type bitwise_operator = [
+    `AMP of Token.t (* "&" *)
+  | `HAT of Token.t (* "^" *)
+  | `BAR of Token.t (* "|" *)
 ]
 
-type pat_d6c261f = Token.t (* pattern ([^/\n].*\
-  )? *)
-
-type increment_operator = Token.t
-
-type hex_integer_literal = Token.t
-
-type assert_builtin = Token.t
-
-type shift_operator_ = [
-    `LTLT of Token.t (* "<<" *)
-  | `GTGT of Token.t (* ">>" *)
-  | `GTGTGT of Token.t (* ">>>" *)
-]
-
-type decimal_integer_literal = Token.t
-
-type identifier_dollar_escaped =
-  Token.t (* pattern ([a-zA-Z_]|(\\\$))([\w]|(\\\$))* *)
-
-type additive_operator_ = Token.t
+type part_of_builtin = Token.t
 
 type case_builtin = Token.t
 
-type pat_4fd4a56 = Token.t (* pattern .* *)
-
-type semicolon = Token.t
+type documentation_block_comment = Token.t
 
 type tok_is = Token.t
-
-type as_operator = Token.t
 
 type assignment_operator = [
     `EQ of Token.t (* "=" *)
@@ -70,21 +39,65 @@ type assignment_operator = [
   | `QMARKQMARKEQ of Token.t (* "??=" *)
 ]
 
+type hex_integer_literal = Token.t
+
+type pat_05bf793 = Token.t (* pattern [^*]*\*+([^/*][^*]*\*+)* *)
+
 type template_chars_single = Token.t
 
-type documentation_block_comment = Token.t
-
-type block_comment = Token.t
-
-type bitwise_operator = [
-    `AMP of Token.t (* "&" *)
-  | `HAT of Token.t (* "^" *)
-  | `BAR of Token.t (* "|" *)
+type shift_operator_ = [
+    `LTLT of Token.t (* "<<" *)
+  | `GTGT of Token.t (* ">>" *)
+  | `GTGTGT of Token.t (* ">>>" *)
 ]
+
+type as_operator = Token.t
+
+type semicolon = Token.t
+
+type unused_escape_sequence = Token.t
+
+type decimal_floating_point_literal = Token.t
+
+type break_builtin = Token.t
+
+type additive_operator_ = Token.t
+
+type pat_4fd4a56 = Token.t (* pattern .* *)
+
+type final_builtin = Token.t
+
+type template_chars_single_single = Token.t
 
 type pat_a3d33dc = Token.t (* pattern [^a-zA-Z_{] *)
 
+type assert_builtin = Token.t
+
+type pat_0017fb0 = Token.t (* pattern .+ *)
+
+type rethrow_builtin = Token.t
+
 type equality_operator = Token.t
+
+type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
+
+type identifier_dollar_escaped =
+  Token.t (* pattern ([a-zA-Z_]|(\\\$))([\w]|(\\\$))* *)
+
+type template_chars_double_single = Token.t
+
+type relational_operator = [
+    `LT of Token.t (* "<" *)
+  | `GT of Token.t (* ">" *)
+  | `LTEQ of Token.t (* "<=" *)
+  | `GTEQ of Token.t (* ">=" *)
+]
+
+type anon_choice_async_725f72f = [
+    `Async of Token.t (* "async" *)
+  | `Asyn of Token.t (* "async*" *)
+  | `Sync of Token.t (* "sync*" *)
+]
 
 type multiplicative_operator_ = [
     `STAR of Token.t (* "*" *)
@@ -93,103 +106,44 @@ type multiplicative_operator_ = [
   | `TILDESLASH of Token.t (* "~/" *)
 ]
 
-type semgrep_named_ellipsis = Token.t (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *)
-
 type void_type = Token.t
 
-type const_builtin = Token.t
+type increment_operator = Token.t
 
-type part_of_builtin = Token.t
+type pat_d6c261f = Token.t (* pattern ([^/\n].*\
+  )? *)
 
-type rethrow_builtin = Token.t
-
-type break_builtin = Token.t
+type decimal_integer_literal = Token.t
 
 type template_chars_double = Token.t
 
-type unused_escape_sequence = Token.t
+type const_builtin = Token.t
 
-type final_builtin = Token.t
-
-type decimal_floating_point_literal = Token.t
-
-type anon_choice_async_725f72f = [
-    `Async of Token.t (* "async" *)
-  | `Asyn of Token.t (* "async*" *)
-  | `Sync of Token.t (* "sync*" *)
-]
+type identifier = Token.t (* pattern [a-zA-Z_$][\w$]* *)
 
 type template_chars_raw_slash = Token.t
 
-type template_chars_single_single = Token.t
-
-type template_chars_double_single = Token.t
-
-type script_tag = (Token.t (* "#!" *) * pat_0017fb0 * Token.t (* "\n" *))
-
-type ambiguous_name = [
-    `Id of identifier (*tok*)
-  | `Scoped_id of (ambiguous_name * Token.t (* "." *) * identifier (*tok*))
-]
-
-type identifier_list = (
-    identifier (*tok*)
-  * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
-)
-
-type catch_parameters = (
-    Token.t (* "(" *)
-  * identifier (*tok*)
-  * (Token.t (* "," *) * identifier (*tok*)) option
-  * Token.t (* ")" *)
-)
-
-type label = (identifier (*tok*) * Token.t (* ":" *))
-
-type symbol_literal = (Token.t (* "#" *) * identifier (*tok*))
-
-type type_dot_identifier = (Token.t (* "." *) * identifier (*tok*))
-
-type dot_identifier = (Token.t (* "." *) * identifier (*tok*))
-
-type identifier_list_ = (
-    identifier (*tok*)
-  * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
-)
-
-type shift_operator = shift_operator_
-
-type identifier_or_new = [
-    `Id of identifier (*tok*)
-  | `New_buil of Token.t (* "new" *)
-]
+type block_comment = Token.t
 
 type bitwise_operator_ = bitwise_operator
 
+type shift_operator = shift_operator_
+
+type anon_choice_final_buil_80e16d2 = [
+    `Final_buil of final_builtin (*tok*)
+  | `Infe_type of Token.t (* "var" *)
+]
+
 type sub_string_test = (Token.t (* "$" *) * pat_a3d33dc)
 
-type multiplicative_operator = multiplicative_operator_
+type script_tag = (Token.t (* "#!" *) * pat_0017fb0 * Token.t (* "\n" *))
 
 type bool_literal = [
     `True of Token.t (* "true" *)
   | `False of Token.t (* "false" *)
 ]
 
-type final_or_const = [
-    `Final_buil of final_builtin (*tok*)
-  | `Const_buil of const_builtin (*tok*)
-]
-
-type numeric_literal = [
-    `Deci_int_lit of decimal_integer_literal (*tok*)
-  | `Deci_floa_point_lit of decimal_floating_point_literal (*tok*)
-  | `Hex_int_lit of hex_integer_literal (*tok*)
-]
-
-type anon_choice_final_buil_80e16d2 = [
-    `Final_buil of final_builtin (*tok*)
-  | `Infe_type of Token.t (* "var" *)
-]
+type multiplicative_operator = multiplicative_operator_
 
 type class_modifiers = (
     [
@@ -215,69 +169,56 @@ type mixin_class_modifiers = (
   * Token.t (* "class" *)
 )
 
-type combinator = [
-    `Show_id_list of (Token.t (* "show" *) * identifier_list)
-  | `Hide_id_list of (Token.t (* "hide" *) * identifier_list)
+type numeric_literal = [
+    `Deci_int_lit of decimal_integer_literal (*tok*)
+  | `Deci_floa_point_lit of decimal_floating_point_literal (*tok*)
+  | `Hex_int_lit of hex_integer_literal (*tok*)
 ]
 
-type catch_clause = (Token.t (* "catch" *) * catch_parameters)
+type final_or_const = [
+    `Final_buil of final_builtin (*tok*)
+  | `Const_buil of const_builtin (*tok*)
+]
 
-type type_name = (identifier (*tok*) * type_dot_identifier option)
+type ambiguous_name = [
+    `Id of identifier (*tok*)
+  | `Scoped_id of (ambiguous_name * Token.t (* "." *) * identifier (*tok*))
+]
 
-type dotted_identifier_list = (
+type label = (identifier (*tok*) * Token.t (* ":" *))
+
+type dot_identifier = (Token.t (* "." *) * identifier (*tok*))
+
+type identifier_list = (
     identifier (*tok*)
-  * dot_identifier list (* zero or more *)
+  * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
 )
 
-type external_and_static = (
-    Token.t (* "external" *)
-  * Token.t (* "static" *) option
+type symbol_literal = (Token.t (* "#" *) * identifier (*tok*))
+
+type catch_parameters = (
+    Token.t (* "(" *)
+  * identifier (*tok*)
+  * (Token.t (* "," *) * identifier (*tok*)) option
+  * Token.t (* ")" *)
 )
 
-type binary_operator = [
-    `Mult_op of multiplicative_operator
-  | `Addi_op of additive_operator_ (*tok*)
-  | `Shift_op of shift_operator
-  | `Rela_op of relational_operator
-  | `EQEQ of Token.t (* "==" *)
-  | `Bitw_op_ of bitwise_operator_
+type identifier_or_new = [
+    `Id of identifier (*tok*)
+  | `New_buil of Token.t (* "new" *)
 ]
 
-type is_operator = (tok_is (*tok*) * Token.t (* "!" *) option)
+type type_dot_identifier = (Token.t (* "." *) * identifier (*tok*))
 
-type prefix_operator = [
-    `Minus_op of Token.t (* "-" *)
-  | `Nega_op of Token.t (* "!" *)
-  | `Tilde_op of Token.t (* "~" *)
+type anon_choice_id_2354d68 = [
+    `Id of identifier (*tok*)
+  | `Get of Token.t (* "get" *)
+  | `Set of Token.t (* "set" *)
 ]
 
-type raw_string_literal_single_quotes = (
-    Token.t (* "r'" *)
-  * [
-        `Temp_chars_single_single of template_chars_single_single (*tok*)
-      | `DQUOT of Token.t (* "\"" *)
-      | `Temp_chars_raw_slash of template_chars_raw_slash (*tok*)
-      | `Unused_esc_seq of unused_escape_sequence (*tok*)
-      | `Sub_str_test of sub_string_test
-      | `DOLLAR of Token.t (* "$" *)
-    ]
-      list (* zero or more *)
-  * Token.t (* "'" *)
-)
-
-type raw_string_literal_double_quotes_multiple = (
-    Token.t (* "r\"\"\"" *)
-  * [
-        `Temp_chars_double of template_chars_double (*tok*)
-      | `SQUOT of Token.t (* "'" *)
-      | `Temp_chars_raw_slash of template_chars_raw_slash (*tok*)
-      | `DQUOT of Token.t (* "\"" *)
-      | `Unused_esc_seq of unused_escape_sequence (*tok*)
-      | `Sub_str_test of sub_string_test
-      | `DOLLAR of Token.t (* "$" *)
-    ]
-      list (* zero or more *)
-  * Token.t (* "\"\"\"" *)
+type identifier_list_ = (
+    identifier (*tok*)
+  * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
 )
 
 type raw_string_literal_single_quotes_multiple = (
@@ -295,6 +236,21 @@ type raw_string_literal_single_quotes_multiple = (
   * Token.t (* "'''" *)
 )
 
+type raw_string_literal_double_quotes_multiple = (
+    Token.t (* "r\"\"\"" *)
+  * [
+        `Temp_chars_double of template_chars_double (*tok*)
+      | `SQUOT of Token.t (* "'" *)
+      | `Temp_chars_raw_slash of template_chars_raw_slash (*tok*)
+      | `DQUOT of Token.t (* "\"" *)
+      | `Unused_esc_seq of unused_escape_sequence (*tok*)
+      | `Sub_str_test of sub_string_test
+      | `DOLLAR of Token.t (* "$" *)
+    ]
+      list (* zero or more *)
+  * Token.t (* "\"\"\"" *)
+)
+
 type raw_string_literal_double_quotes = (
     Token.t (* "r\"" *)
   * [
@@ -308,6 +264,58 @@ type raw_string_literal_double_quotes = (
       list (* zero or more *)
   * Token.t (* "\"" *)
 )
+
+type raw_string_literal_single_quotes = (
+    Token.t (* "r'" *)
+  * [
+        `Temp_chars_single_single of template_chars_single_single (*tok*)
+      | `DQUOT of Token.t (* "\"" *)
+      | `Temp_chars_raw_slash of template_chars_raw_slash (*tok*)
+      | `Unused_esc_seq of unused_escape_sequence (*tok*)
+      | `Sub_str_test of sub_string_test
+      | `DOLLAR of Token.t (* "$" *)
+    ]
+      list (* zero or more *)
+  * Token.t (* "'" *)
+)
+
+type is_operator = (tok_is (*tok*) * Token.t (* "!" *) option)
+
+type prefix_operator = [
+    `Minus_op of Token.t (* "-" *)
+  | `Nega_op of Token.t (* "!" *)
+  | `Tilde_op of Token.t (* "~" *)
+]
+
+type external_and_static = (
+    Token.t (* "external" *)
+  * Token.t (* "static" *) option
+)
+
+type binary_operator = [
+    `Mult_op of multiplicative_operator
+  | `Addi_op of additive_operator_ (*tok*)
+  | `Shift_op of shift_operator
+  | `Rela_op of relational_operator
+  | `EQEQ of Token.t (* "==" *)
+  | `Bitw_op_ of bitwise_operator_
+]
+
+type dotted_identifier_list = (
+    identifier (*tok*)
+  * dot_identifier list (* zero or more *)
+)
+
+type combinator = [
+    `Show_id_list of (Token.t (* "show" *) * identifier_list)
+  | `Hide_id_list of (Token.t (* "hide" *) * identifier_list)
+]
+
+type catch_clause = (Token.t (* "catch" *) * catch_parameters)
+
+type dot_shorthand = (Token.t (* "." *) * identifier_or_new)
+
+type type_name = (identifier (*tok*) * type_dot_identifier option)
 
 type qualified = [
     `Type_name_DOT_id_or_new of (
@@ -531,7 +539,7 @@ and declared_identifier = (
     metadata option
   * Token.t (* "covariant" *) option
   * final_const_var_or_type
-  * identifier (*tok*)
+  * anon_choice_id_2354d68
 )
 
 and default_formal_parameter = (
@@ -555,8 +563,13 @@ and default_named_parameter = [
 ]
 
 and element = [
-    `Exp of argument
-  | `Pair of (argument * Token.t (* ":" *) * argument)
+    `Opt_QMARK_exp of (Token.t (* "?" *) option * argument)
+  | `Pair of (
+        argument
+      * Token.t (* ":" *)
+      * Token.t (* "?" *) option
+      * argument
+    )
   | `Spread_elem of (
         Token.t (* "..." *)
       * Token.t (* "?" *) option
@@ -741,7 +754,7 @@ and function_type_tails = function_type_tail list (* one or more *)
 
 and guarded_pattern = (pattern * (Token.t (* "when" *) * argument) option)
 
-and if_null_expression_ =
+and if_null_expression =
   (Token.t (* "??" *) * real_expression) list (* one or more *)
 
 and index_selector = (Token.t (* "[" *) * argument * Token.t (* "]" *))
@@ -876,9 +889,12 @@ and object_pattern = (
     type_name
   * type_arguments option
   * Token.t (* "(" *)
-  * pattern_field
-  * (Token.t (* "," *) * pattern_field) list (* zero or more *)
-  * Token.t (* "," *) option
+  * (
+        pattern_field
+      * (Token.t (* "," *) * pattern_field) list (* zero or more *)
+      * Token.t (* "," *) option
+    )
+      option
   * Token.t (* ")" *)
 )
 
@@ -998,6 +1014,8 @@ and postfix_expression_ = [
 and primary = [
     `Lit of literal
   | `Id of identifier (*tok*)
+  | `Get of Token.t (* "get" *)
+  | `Set of Token.t (* "set" *)
   | `Func_exp of (formal_parameter_part * function_expression_body)
   | `New_exp of (
         Token.t (* "new" *)
@@ -1026,6 +1044,7 @@ and primary = [
       * Token.t (* "," *) option
       * Token.t (* "}" *)
     )
+  | `Dot_shor of dot_shorthand
 ]
 
 and primary_pattern = [
@@ -1047,7 +1066,7 @@ and real_expression = [
         real_expression
       * (Token.t (* "||" *) * real_expression) list (* one or more *)
     )
-  | `If_null_exp of (real_expression * if_null_expression_)
+  | `If_null_exp_ of (real_expression * if_null_expression)
   | `Addi_exp of additive_expression
   | `Mult_exp of multiplicative_expression
   | `Rela_exp of relational_expression
@@ -1165,7 +1184,10 @@ and shift_expression = [
 
 and simple_formal_parameter = [
     `Decl_id of declared_identifier
-  | `Opt_cova_id of (Token.t (* "covariant" *) option * identifier (*tok*))
+  | `Opt_cova_choice_id of (
+        Token.t (* "covariant" *) option
+      * anon_choice_id_2354d68
+    )
 ]
 
 and statement = [
@@ -1457,11 +1479,126 @@ and var_or_type = [
   | `Infe_type_opt_type of (Token.t (* "var" *) * type_ option)
 ]
 
+type part_directive = (
+    metadata option
+  * Token.t (* "part" *)
+  * uri
+  * semicolon (*tok*)
+)
+
+type static_final_declaration = (
+    identifier (*tok*) * Token.t (* "=" *) * argument
+)
+
+type wildcard_bounds = [
+    `Extends_type of (Token.t (* "extends" *) * type_)
+  | `Super_type of (Token.t (* "super" *) * type_)
+]
+
+type getter_signature = (
+    type_ option
+  * Token.t (* "get" *)
+  * identifier (*tok*)
+  * native option
+)
+
+type semgrep_pattern = [ `Exp of argument | `Stmt of statement ]
+
+type type_alias = [
+    `Opt_meta_type_opt_type_type_name_formal_param_part_SEMI of (
+        metadata option
+      * Token.t (* "typedef" *)
+      * type_ option
+      * type_name
+      * formal_parameter_part
+      * Token.t (* ";" *)
+    )
+  | `Opt_meta_type_type_name_opt_type_params_EQ_type_SEMI of (
+        metadata option
+      * Token.t (* "typedef" *)
+      * type_name
+      * type_parameters option
+      * Token.t (* "=" *)
+      * type_
+      * Token.t (* ";" *)
+    )
+]
+
+type part_of_directive = (
+    metadata option
+  * part_of_builtin (*tok*)
+  * [ `Dotted_id_list of dotted_identifier_list | `Uri of uri ]
+  * semicolon (*tok*)
+)
+
+type anon_choice_type_be0da33 = [
+    `Type of type_
+  | `Infe_type of Token.t (* "var" *)
+]
+
 type library_name = (
     metadata option
   * Token.t (* "library" *)
   * dotted_identifier_list
   * semicolon (*tok*)
+)
+
+type constant_constructor_signature = (
+    const_builtin (*tok*)
+  * identifier (*tok*)
+  * dot_shorthand option
+  * formal_parameter_list
+)
+
+type type_not_void_list = (
+    type_not_void
+  * (Token.t (* "," *) * type_not_void) list (* zero or more *)
+)
+
+type enum_constant = [
+    `Opt_meta_id_opt_arg_part of (
+        metadata option
+      * identifier (*tok*)
+      * argument_part option
+    )
+  | `Opt_meta_id_opt_type_args_DOT_choice_id_args of (
+        metadata option
+      * identifier (*tok*)
+      * type_arguments option
+      * Token.t (* "." *)
+      * identifier_or_new
+      * arguments
+    )
+]
+
+type uri_test = (dotted_identifier_list * (Token.t (* "==" *) * uri) option)
+
+type operator_signature = (
+    type_ option
+  * Token.t (* "operator" *)
+  * [
+        `TILDE of Token.t (* "~" *)
+      | `Bin_op of binary_operator
+      | `LBRACKRBRACK of Token.t (* "[]" *)
+      | `LBRACKRBRACKEQ of Token.t (* "[]=" *)
+    ]
+  * formal_parameter_list
+  * native option
+)
+
+type factory_constructor_signature = (
+    Token.t (* "factory" *)
+  * identifier (*tok*)
+  * dot_identifier list (* zero or more *)
+  * formal_parameter_list
+)
+
+type setter_signature = (
+    type_ option
+  * Token.t (* "set" *)
+  * identifier (*tok*)
+  * formal_parameter_part
+  * native option
 )
 
 type explicit_constructor_invocation = (
@@ -1484,143 +1621,37 @@ type explicit_constructor_invocation = (
   * semicolon (*tok*)
 )
 
-type type_not_void_list = (
-    type_not_void
-  * (Token.t (* "," *) * type_not_void) list (* zero or more *)
-)
-
-type anon_choice_type_be0da33 = [
-    `Type of type_
-  | `Infe_type of Token.t (* "var" *)
-]
-
-type getter_signature = (
-    type_ option
-  * Token.t (* "get" *)
-  * identifier (*tok*)
-  * native option
-)
-
-type operator_signature = (
-    type_ option
-  * Token.t (* "operator" *)
-  * [
-        `TILDE of Token.t (* "~" *)
-      | `Bin_op of binary_operator
-      | `LBRACKRBRACK of Token.t (* "[]" *)
-      | `LBRACKRBRACKEQ of Token.t (* "[]=" *)
-    ]
-  * formal_parameter_list
-  * native option
-)
-
-type part_of_directive = (
-    metadata option
-  * part_of_builtin (*tok*)
-  * [ `Dotted_id_list of dotted_identifier_list | `Uri of uri ]
-  * semicolon (*tok*)
-)
-
-type factory_constructor_signature = (
-    Token.t (* "factory" *)
-  * identifier (*tok*)
-  * dot_identifier list (* zero or more *)
-  * formal_parameter_list
-)
-
-type enum_constant = [
-    `Opt_meta_id_opt_arg_part of (
-        metadata option
-      * identifier (*tok*)
-      * argument_part option
-    )
-  | `Opt_meta_id_opt_type_args_DOT_choice_id_args of (
-        metadata option
-      * identifier (*tok*)
-      * type_arguments option
-      * Token.t (* "." *)
-      * identifier_or_new
-      * arguments
-    )
-]
-
-type type_alias = [
-    `Opt_meta_type_opt_type_type_name_formal_param_part_SEMI of (
-        metadata option
-      * Token.t (* "typedef" *)
-      * type_ option
-      * type_name
-      * formal_parameter_part
-      * Token.t (* ";" *)
-    )
-  | `Opt_meta_type_type_name_opt_type_params_EQ_type_SEMI of (
-        metadata option
-      * Token.t (* "typedef" *)
-      * type_name
-      * type_parameters option
-      * Token.t (* "=" *)
-      * type_
-      * Token.t (* ";" *)
-    )
-]
-
-type uri_test = (dotted_identifier_list * (Token.t (* "==" *) * uri) option)
-
-type wildcard_bounds = [
-    `Extends_type of (Token.t (* "extends" *) * type_)
-  | `Super_type of (Token.t (* "super" *) * type_)
-]
-
-type semgrep_pattern = [ `Exp of argument | `Stmt of statement ]
-
-type setter_signature = (
-    type_ option
-  * Token.t (* "set" *)
-  * identifier (*tok*)
-  * formal_parameter_part
-  * native option
-)
-
-type static_final_declaration = (
-    identifier (*tok*) * Token.t (* "=" *) * argument
-)
-
-type constructor_signature = (
-    identifier (*tok*)
-  * (Token.t (* "." *) * identifier_or_new) option
-  * formal_parameter_list
-)
-
 type initialized_identifier_list = (
     initialized_identifier
   * (Token.t (* "," *) * initialized_identifier) list (* zero or more *)
 )
 
-type constant_constructor_signature = (
-    const_builtin (*tok*)
+type representation_declaration = (
+    dot_shorthand option
+  * Token.t (* "(" *)
+  * metadata option
+  * type_
   * identifier (*tok*)
-  * (Token.t (* "." *) * identifier_or_new) option
+  * Token.t (* ")" *)
+)
+
+type constructor_signature = (
+    identifier (*tok*)
+  * dot_shorthand option
   * formal_parameter_list
-)
-
-type part_directive = (
-    metadata option
-  * Token.t (* "part" *)
-  * uri
-  * semicolon (*tok*)
-)
-
-type interfaces = (Token.t (* "implements" *) * type_not_void_list)
-
-type mixins = (Token.t (* "with" *) * type_not_void_list)
-
-type configuration_uri_condition = (
-    Token.t (* "(" *) * uri_test * Token.t (* ")" *)
 )
 
 type static_final_declaration_list = (
     static_final_declaration
   * (Token.t (* "," *) * static_final_declaration) list (* zero or more *)
+)
+
+type mixins = (Token.t (* "with" *) * type_not_void_list)
+
+type interfaces = (Token.t (* "implements" *) * type_not_void_list)
+
+type configuration_uri_condition = (
+    Token.t (* "(" *) * uri_test * Token.t (* ")" *)
 )
 
 type initializer_list_entry = [
@@ -1639,8 +1670,6 @@ type initializer_list_entry = [
   | `Asse of assertion
 ]
 
-type mixin_application = (type_not_void * mixins * interfaces option)
-
 type superclass = [
     `Extends_type_not_void_opt_mixins of (
         Token.t (* "extends" *)
@@ -1649,6 +1678,8 @@ type superclass = [
     )
   | `Mixins of mixins
 ]
+
+type mixin_application = (type_not_void * mixins * interfaces option)
 
 type configuration_uri = (
     Token.t (* "if" *) * configuration_uri_condition * uri
@@ -1670,6 +1701,16 @@ type mixin_application_class = (
 
 type configurable_uri = (uri * configuration_uri list (* zero or more *))
 
+type anon_choice_redi_3f8cf96 = [
+    `Redi of (
+        Token.t (* ":" *)
+      * Token.t (* "this" *)
+      * dot_shorthand option
+      * arguments
+    )
+  | `Initis of initializers
+]
+
 type method_signature = [
     `Cons_sign_opt_initis of (constructor_signature * initializers option)
   | `Fact_cons_sign of factory_constructor_signature
@@ -1682,16 +1723,6 @@ type method_signature = [
         ]
     )
   | `Op_sign of operator_signature
-]
-
-type anon_choice_redi_3f8cf96 = [
-    `Redi of (
-        Token.t (* ":" *)
-      * Token.t (* "this" *)
-      * (Token.t (* "." *) * identifier_or_new) option
-      * arguments
-    )
-  | `Initis of initializers
 ]
 
 type import_specification = [
@@ -1762,6 +1793,9 @@ type declaration_ = [
   | `Opt_exte_and_static_func_sign of (
         external_and_static option
       * function_signature
+    )
+  | `Exte_and_static_type_id of (
+        external_and_static * type_ * identifier (*tok*)
     )
   | `Static_func_sign of (Token.t (* "static" *) * function_signature)
   | `Static_choice_final_or_const_opt_type_static_final_decl_list of (
@@ -1899,17 +1933,6 @@ type enum_declaration = (
   * enum_body
 )
 
-type mixin_declaration = (
-    metadata option
-  * Token.t (* "base" *) option
-  * Token.t (* "mixin" *)
-  * identifier (*tok*)
-  * type_parameters option
-  * (Token.t (* "on" *) * type_not_void_list) option
-  * interfaces option
-  * class_body
-)
-
 type class_definition = [
     `Opt_meta_choice_class_modifs_id_opt_type_params_opt_supe_opt_inters_class_body of (
         metadata option
@@ -1930,11 +1953,35 @@ type class_definition = [
     )
 ]
 
+type extension_type_declaration = (
+    metadata option
+  * Token.t (* "extension" *)
+  * Token.t (* "type" *)
+  * const_builtin (*tok*) option
+  * identifier (*tok*)
+  * type_parameters option
+  * representation_declaration
+  * interfaces option
+  * class_body
+)
+
+type mixin_declaration = (
+    metadata option
+  * Token.t (* "base" *) option
+  * Token.t (* "mixin" *)
+  * identifier (*tok*)
+  * type_parameters option
+  * (Token.t (* "on" *) * type_not_void_list) option
+  * interfaces option
+  * class_body
+)
+
 type top_level_definition = [
     `Choice_class_defi of [
         `Class_defi of class_definition
       | `Mixin_decl of mixin_declaration
       | `Exte_decl of extension_declaration
+      | `Exte_type_decl of extension_type_declaration
       | `Enum_decl of enum_declaration
       | `Type_alias of type_alias
       | `Opt_meta_opt_exte_buil_func_sign_semi of (
@@ -2008,89 +2055,45 @@ type program = [
   | `Semg_exp of (Token.t (* "__SEMGREP_EXPRESSION" *) * semgrep_pattern)
 ]
 
-type minus_operator (* inlined *) = Token.t (* "-" *)
-
-type string_interp (* inlined *) =
-  Token.t (* pattern \$((\w+)|\{([^{}]+)\}) *)
+type this (* inlined *) = Token.t (* "this" *)
 
 type deferred (* inlined *) = Token.t (* "deferred" *)
 
-type true_ (* inlined *) = Token.t (* "true" *)
-
-type logical_or_operator (* inlined *) = Token.t (* "||" *)
-
-type asterisk (* inlined *) = Token.t (* "*" *)
-
-type base (* inlined *) = Token.t (* "base" *)
-
-type tilde_operator (* inlined *) = Token.t (* "~" *)
-
-type nullable_type (* inlined *) = Token.t (* "?" *)
-
-type library (* inlined *) = Token.t (* "library" *)
-
-type super (* inlined *) = Token.t (* "super" *)
-
-type factory (* inlined *) = Token.t (* "factory" *)
-
-type new_builtin (* inlined *) = Token.t (* "new" *)
-
 type get (* inlined *) = Token.t (* "get" *)
-
-type boolean_type (* inlined *) = Token.t (* "bool" *)
-
-type mixin (* inlined *) = Token.t (* "mixin" *)
-
-type typedef (* inlined *) = Token.t (* "typedef" *)
-
-type function_builtin_identifier (* inlined *) = Token.t (* "Function" *)
-
-type external_builtin (* inlined *) = Token.t (* "external" *)
-
-type implements (* inlined *) = Token.t (* "implements" *)
-
-type late_builtin (* inlined *) = Token.t (* "late" *)
 
 type logical_and_operator (* inlined *) = Token.t (* "&&" *)
 
-type export (* inlined *) = Token.t (* "export" *)
+type library (* inlined *) = Token.t (* "library" *)
 
-type required (* inlined *) = Token.t (* "required" *)
+type triple_quote_end (* inlined *) = Token.t
 
-type part (* inlined *) = Token.t (* "part" *)
+type late_builtin (* inlined *) = Token.t (* "late" *)
 
-type dynamic (* inlined *) = Token.t (* "dynamic" *)
+type true_ (* inlined *) = Token.t (* "true" *)
 
-type sealed (* inlined *) = Token.t (* "sealed" *)
+type minus_operator (* inlined *) = Token.t (* "-" *)
 
-type static (* inlined *) = Token.t (* "static" *)
+type asterisk (* inlined *) = Token.t (* "*" *)
 
-type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
+type import (* inlined *) = Token.t (* "import" *)
 
-type set (* inlined *) = Token.t (* "set" *)
+type function_builtin_identifier (* inlined *) = Token.t (* "Function" *)
 
-type exclamation_operator (* inlined *) = Token.t (* "!" *)
-
-type triple_double_quote_end (* inlined *) = Token.t
-
-type compound_access (* inlined *) = [
-    `DOT of Token.t (* "." *)
-  | `QMARKDOT of Token.t (* "?." *)
-]
-
-type this (* inlined *) = Token.t (* "this" *)
+type new_builtin (* inlined *) = Token.t (* "new" *)
 
 type floating_point_type (* inlined *) = Token.t
 
-type operator (* inlined *) = Token.t (* "operator" *)
+type nullable_type (* inlined *) = Token.t (* "?" *)
 
-type false_ (* inlined *) = Token.t (* "false" *)
+type part (* inlined *) = Token.t (* "part" *)
+
+type base (* inlined *) = Token.t (* "base" *)
 
 type inferred_type (* inlined *) = Token.t (* "var" *)
 
-type nullable_selector (* inlined *) = Token.t (* "?" *)
+type logical_or_operator (* inlined *) = Token.t (* "||" *)
 
-type triple_quote_end (* inlined *) = Token.t
+type dynamic (* inlined *) = Token.t (* "dynamic" *)
 
 type null_literal (* inlined *) = Token.t (* "null" *)
 
@@ -2098,17 +2101,89 @@ type interface (* inlined *) = Token.t (* "interface" *)
 
 type as_ (* inlined *) = Token.t (* "as" *)
 
-type abstract (* inlined *) = Token.t (* "abstract" *)
+type exclamation_operator (* inlined *) = Token.t (* "!" *)
+
+type super (* inlined *) = Token.t (* "super" *)
+
+type required (* inlined *) = Token.t (* "required" *)
+
+type static (* inlined *) = Token.t (* "static" *)
+
+type triple_double_quote_end (* inlined *) = Token.t
+
+type set (* inlined *) = Token.t (* "set" *)
+
+type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
+
+type sealed (* inlined *) = Token.t (* "sealed" *)
 
 type semgrep_metavariable (* inlined *) =
   Token.t (* pattern \$[A-Z_][A-Z_0-9]* *)
 
+type typedef (* inlined *) = Token.t (* "typedef" *)
+
+type string_interp (* inlined *) =
+  Token.t (* pattern \$((\w+)|\{([^{}]+)\}) *)
+
+type false_ (* inlined *) = Token.t (* "false" *)
+
+type mixin (* inlined *) = Token.t (* "mixin" *)
+
+type nullable_selector (* inlined *) = Token.t (* "?" *)
+
+type external_builtin (* inlined *) = Token.t (* "external" *)
+
+type boolean_type (* inlined *) = Token.t (* "bool" *)
+
+type export (* inlined *) = Token.t (* "export" *)
+
 type covariant (* inlined *) = Token.t (* "covariant" *)
 
-type import (* inlined *) = Token.t (* "import" *)
+type tilde_operator (* inlined *) = Token.t (* "~" *)
+
+type factory (* inlined *) = Token.t (* "factory" *)
+
+type abstract (* inlined *) = Token.t (* "abstract" *)
+
+type implements (* inlined *) = Token.t (* "implements" *)
+
+type compound_access (* inlined *) = [
+    `DOT of Token.t (* "." *)
+  | `QMARKDOT of Token.t (* "?." *)
+]
+
+type operator (* inlined *) = Token.t (* "operator" *)
+
+type escape_sequence (* inlined *) = unused_escape_sequence (*tok*)
+
+type additive_operator (* inlined *) = additive_operator_ (*tok*)
+
+type documentation_comment (* inlined *) = [
+    `Docu_blk_comm of documentation_block_comment (*tok*)
+  | `SLASHSLASHSLASH_pat_4fd4a56 of (Token.t (* "///" *) * pat_4fd4a56)
+]
+
+type negation_operator (* inlined *) = Token.t (* "!" *)
+
+type rethrow_expression (* inlined *) = rethrow_builtin (*tok*)
+
+type external_ (* inlined *) = Token.t (* "external" *)
+
+type static_or_covariant (* inlined *) = [
+    `Cova of Token.t (* "covariant" *)
+  | `Static of Token.t (* "static" *)
+]
+
+type postfix_operator (* inlined *) = increment_operator (*tok*)
 
 type scoped_identifier (* inlined *) = (
     ambiguous_name * Token.t (* "." *) * identifier (*tok*)
+)
+
+type break_statement (* inlined *) = (
+    break_builtin (*tok*)
+  * identifier (*tok*) option
+  * semicolon (*tok*)
 )
 
 type inferred_parameters (* inlined *) = (
@@ -2118,22 +2193,11 @@ type inferred_parameters (* inlined *) = (
   * Token.t (* ")" *)
 )
 
-type postfix_operator (* inlined *) = increment_operator (*tok*)
-
-type additive_operator (* inlined *) = additive_operator_ (*tok*)
-
-type external_ (* inlined *) = Token.t (* "external" *)
-
 type continue_statement (* inlined *) = (
     Token.t (* "continue" *)
   * identifier (*tok*) option
   * semicolon (*tok*)
 )
-
-type documentation_comment (* inlined *) = [
-    `Docu_blk_comm of documentation_block_comment (*tok*)
-  | `SLASHSLASHSLASH_pat_4fd4a56 of (Token.t (* "///" *) * pat_4fd4a56)
-]
 
 type comment (* inlined *) = [
     `Blk_comm of block_comment (*tok*)
@@ -2141,23 +2205,6 @@ type comment (* inlined *) = [
   | `SLASHSTAR_pat_05bf793_SLASH of (
         Token.t (* "/*" *) * pat_05bf793 * Token.t (* "/" *)
     )
-]
-
-type negation_operator (* inlined *) = Token.t (* "!" *)
-
-type rethrow_expression (* inlined *) = rethrow_builtin (*tok*)
-
-type break_statement (* inlined *) = (
-    break_builtin (*tok*)
-  * identifier (*tok*) option
-  * semicolon (*tok*)
-)
-
-type escape_sequence (* inlined *) = unused_escape_sequence (*tok*)
-
-type static_or_covariant (* inlined *) = [
-    `Cova of Token.t (* "covariant" *)
-  | `Static of Token.t (* "static" *)
 ]
 
 type assert_statement (* inlined *) = (assertion * Token.t (* ";" *))
@@ -2223,8 +2270,8 @@ type if_element (* inlined *) = (
   * (Token.t (* "else" *) * element) option
 )
 
-type if_null_expression (* inlined *) = (
-    real_expression * if_null_expression_
+type if_null_expression_ (* inlined *) = (
+    real_expression * if_null_expression
 )
 
 type if_statement (* inlined *) = (
@@ -2320,7 +2367,12 @@ type optional_postional_formal_parameters (* inlined *) = (
   * Token.t (* "]" *)
 )
 
-type pair (* inlined *) = (argument * Token.t (* ":" *) * argument)
+type pair (* inlined *) = (
+    argument
+  * Token.t (* ":" *)
+  * Token.t (* "?" *) option
+  * argument
+)
 
 type record_literal (* inlined *) = (
     const_builtin (*tok*) option
@@ -2399,18 +2451,34 @@ type yield_statement (* inlined *) = (
     Token.t (* "yield" *) * argument * semicolon (*tok*)
 )
 
-type dimensions (* inlined *) =
-  (metadata option * Token.t (* "[" *) * Token.t (* "]" *))
-    list (* one or more *)
+type default_case (* inlined *) = [
+  `Rep_label_defa_COLON_rep1_stmt of (
+      label list (* zero or more *)
+    * Token.t (* "default" *)
+    * Token.t (* ":" *)
+    * statement list (* one or more *)
+  )
+]
+
+type labeled_statement (* inlined *) = (
+    identifier (*tok*) * Token.t (* ":" *) * statement
+)
 
 type static_initializer (* inlined *) = (Token.t (* "static" *) * block)
 
-type positional_parameters (* inlined *) = (
-    Token.t (* "[" *)
-  * default_formal_parameter
-  * (Token.t (* "," *) * default_formal_parameter) list (* zero or more *)
-  * Token.t (* "]" *)
+type variable_declaration (* inlined *) = (
+    declared_identifier
+  * (
+        Token.t (* "," *)
+      * identifier (*tok*)
+      * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
+    )
+      option
 )
+
+type dimensions (* inlined *) =
+  (metadata option * Token.t (* "[" *) * Token.t (* "]" *))
+    list (* one or more *)
 
 type redirecting_factory_constructor_signature (* inlined *) = (
     const_builtin (*tok*) option
@@ -2423,26 +2491,45 @@ type redirecting_factory_constructor_signature (* inlined *) = (
   * dot_identifier option
 )
 
-type variable_declaration (* inlined *) = (
-    declared_identifier
-  * (
-        Token.t (* "," *)
-      * identifier (*tok*)
-      * (Token.t (* "," *) * identifier (*tok*)) list (* zero or more *)
-    )
-      option
+type positional_parameters (* inlined *) = (
+    Token.t (* "[" *)
+  * default_formal_parameter
+  * (Token.t (* "," *) * default_formal_parameter) list (* zero or more *)
+  * Token.t (* "]" *)
+)
+
+type throw_statement (* inlined *) = (
+    Token.t (* "throw" *) * argument * semicolon (*tok*)
+)
+
+type field_initializer (* inlined *) = (
+    (Token.t (* "this" *) * Token.t (* "." *)) option
+  * identifier (*tok*)
+  * Token.t (* "=" *)
+  * real_expression
+  * cascade_section list (* zero or more *)
 )
 
 type redirection (* inlined *) = (
     Token.t (* ":" *)
   * Token.t (* "this" *)
-  * (Token.t (* "." *) * identifier_or_new) option
+  * dot_shorthand option
   * arguments
 )
 
 type catch_type (* inlined *) = (
     type_
   * (Token.t (* "|" *) * type_) list (* zero or more *)
+)
+
+type switch_label (* inlined *) = (
+    label list (* zero or more *)
+  * [
+        `Case_buil_exp_COLON of (
+            case_builtin (*tok*) * argument * Token.t (* ":" *)
+        )
+      | `Defa_COLON of (Token.t (* "default" *) * Token.t (* ":" *))
+    ]
 )
 
 type switch_case (* inlined *) = [
@@ -2455,48 +2542,6 @@ type switch_case (* inlined *) = [
   )
 ]
 
-type switch_label (* inlined *) = (
-    label list (* zero or more *)
-  * [
-        `Case_buil_exp_COLON of (
-            case_builtin (*tok*) * argument * Token.t (* ":" *)
-        )
-      | `Defa_COLON of (Token.t (* "default" *) * Token.t (* ":" *))
-    ]
-)
-
-type default_case (* inlined *) = [
-  `Rep_label_defa_COLON_rep1_stmt of (
-      label list (* zero or more *)
-    * Token.t (* "default" *)
-    * Token.t (* ":" *)
-    * statement list (* one or more *)
-  )
-]
-
-type field_initializer (* inlined *) = (
-    (Token.t (* "this" *) * Token.t (* "." *)) option
-  * identifier (*tok*)
-  * Token.t (* "=" *)
-  * real_expression
-  * cascade_section list (* zero or more *)
-)
-
-type labeled_statement (* inlined *) = (
-    identifier (*tok*) * Token.t (* ":" *) * statement
-)
-
-type throw_statement (* inlined *) = (
-    Token.t (* "throw" *) * argument * semicolon (*tok*)
-)
-
-type constructor_body (* inlined *) = (
-    Token.t (* "{" *)
-  * explicit_constructor_invocation option
-  * statement list (* zero or more *)
-  * Token.t (* "}" *)
-)
-
 type wildcard (* inlined *) = (
     metadata option
   * Token.t (* "?" *)
@@ -2505,6 +2550,13 @@ type wildcard (* inlined *) = (
 
 type semgrep_expression (* inlined *) = (
     Token.t (* "__SEMGREP_EXPRESSION" *) * semgrep_pattern
+)
+
+type constructor_body (* inlined *) = (
+    Token.t (* "{" *)
+  * explicit_constructor_invocation option
+  * statement list (* zero or more *)
+  * Token.t (* "}" *)
 )
 
 type library_export (* inlined *) = (

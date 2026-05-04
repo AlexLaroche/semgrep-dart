@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 80e23c07b64494f7e21090bb3450223ef0b192f4
+Latest commit in repo: 0fc19c3a57b1109802af41d2b8f60d8835c5da3a
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,21 +10,40 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 80e23c07b64494f7e21090bb3450223ef0b192f4
+Latest commit in repo: 0fc19c3a57b1109802af41d2b8f60d8835c5da3a
 Last change in file:
-  commit 597f6d41bed4069267697ea6956926a62111e70a
-  Author: Christian Clason <c.clason@uni-graz.at>
-  Date:   Sat Apr 27 19:46:54 2024 +0200
+  commit 0fc19c3a57b1109802af41d2b8f60d8835c5da3a
+  Author: Copilot <198982749+Copilot@users.noreply.github.com>
+  Date:   Sat Mar 14 14:11:47 2026 -0600
   
-      fix(grammar): adapt to upstream regex change
+      Add Dart 3.10 dot shorthand expression support (#93)
+      
+      * Initial plan
+      
+      * Add Dart 3.10 dot shorthand grammar rule and tests
+      
+      Co-authored-by: TimWhiting <15617545+TimWhiting@users.noreply.github.com>
+      
+      * Add support for null-aware elements and external members, and object patterns with no parameters
+      
+      ---------
+      
+      Co-authored-by: copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com>
+      Co-authored-by: TimWhiting <15617545+TimWhiting@users.noreply.github.com>
+      Co-authored-by: Tim Whiting <tim@whitings.org>
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 3207a600a125a2909932068f4ce16f47687c90c3
+Latest commit in repo: 5947277ad272330333518d1c165c016982f9b5b3
 Last change in file:
-  commit 3207a600a125a2909932068f4ce16f47687c90c3
-  Author: brandonspark <wu.brandonj@gmail.com>
-  Date:   Fri May 16 15:45:33 2025 -0700
+  commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
+  Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
+  Date:   Wed Jun 11 09:38:47 2025 -0700
   
-      allow import ellipsis
+      fix(dart): update submodule (#536)
+      
+      ### Checklist
+      
+      - [ ] Any new parsing code was already published, integrated, and merged into Semgrep. DO NOT MERGE THIS PR BEFORE THE SEMGREP INTEGRATION WORK WAS COMPLETED.
+      - [x] Change has no security implications (otherwise, ping the security team)
 ---
