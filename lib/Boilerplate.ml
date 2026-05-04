@@ -647,20 +647,6 @@ let map_type_name (env : env) ((v1, v2) : CST.type_name) =
   in
   R.Tuple [v1; v2]
 
-let map_combinator (env : env) (x : CST.combinator) =
-  (match x with
-  | `Show_id_list (v1, v2) -> R.Case ("Show_id_list",
-      let v1 = (* "show" *) token env v1 in
-      let v2 = map_identifier_list env v2 in
-      R.Tuple [v1; v2]
-    )
-  | `Hide_id_list (v1, v2) -> R.Case ("Hide_id_list",
-      let v1 = (* "hide" *) token env v1 in
-      let v2 = map_identifier_list env v2 in
-      R.Tuple [v1; v2]
-    )
-  )
-
 let map_catch_clause (env : env) ((v1, v2) : CST.catch_clause) =
   let v1 = (* "catch" *) token env v1 in
   let v2 = map_catch_parameters env v2 in
@@ -670,6 +656,20 @@ let map_dot_shorthand (env : env) ((v1, v2) : CST.dot_shorthand) =
   let v1 = (* "." *) token env v1 in
   let v2 = map_identifier_or_new env v2 in
   R.Tuple [v1; v2]
+
+let map_combinator (env : env) (x : CST.combinator) =
+  (match x with
+  | `Show_id_list_ (v1, v2) -> R.Case ("Show_id_list_",
+      let v1 = (* "show" *) token env v1 in
+      let v2 = map_identifier_list_ env v2 in
+      R.Tuple [v1; v2]
+    )
+  | `Hide_id_list_ (v1, v2) -> R.Case ("Hide_id_list_",
+      let v1 = (* "hide" *) token env v1 in
+      let v2 = map_identifier_list_ env v2 in
+      R.Tuple [v1; v2]
+    )
+  )
 
 let map_qualified (env : env) (x : CST.qualified) =
   (match x with
@@ -4502,15 +4502,15 @@ let map_declaration_ (env : env) (x : CST.declaration_) =
       in
       R.Tuple [v1; v2]
     )
-  | `Cova_choice_late_buil_choice_final_buil_opt_type_id_list_ (v1, v2) -> R.Case ("Cova_choice_late_buil_choice_final_buil_opt_type_id_list_",
+  | `Cova_choice_late_buil_choice_final_buil_opt_type_id_list (v1, v2) -> R.Case ("Cova_choice_late_buil_choice_final_buil_opt_type_id_list",
       let v1 = (* "covariant" *) token env v1 in
       let v2 =
         (match v2 with
-        | `Late_buil_choice_final_buil_opt_type_id_list_ (v1, v2) -> R.Case ("Late_buil_choice_final_buil_opt_type_id_list_",
+        | `Late_buil_choice_final_buil_opt_type_id_list (v1, v2) -> R.Case ("Late_buil_choice_final_buil_opt_type_id_list",
             let v1 = (* "late" *) token env v1 in
             let v2 =
               (match v2 with
-              | `Final_buil_opt_type_id_list_ (v1, v2, v3) -> R.Case ("Final_buil_opt_type_id_list_",
+              | `Final_buil_opt_type_id_list (v1, v2, v3) -> R.Case ("Final_buil_opt_type_id_list",
                   let v1 = (* final_builtin *) token env v1 in
                   let v2 =
                     (match v2 with
@@ -4519,7 +4519,7 @@ let map_declaration_ (env : env) (x : CST.declaration_) =
                       ))
                     | None -> R.Option None)
                   in
-                  let v3 = map_identifier_list_ env v3 in
+                  let v3 = map_identifier_list env v3 in
                   R.Tuple [v1; v2; v3]
                 )
               | `Choice_type_init_id_list (v1, v2) -> R.Case ("Choice_type_init_id_list",
@@ -4570,6 +4570,37 @@ let map_declaration_ (env : env) (x : CST.declaration_) =
       let v2 = map_var_or_type env v2 in
       let v3 = map_initialized_identifier_list env v3 in
       R.Tuple [v1; v2; v3]
+    )
+  | `Abst_choice_final_buil_opt_type_id_list (v1, v2) -> R.Case ("Abst_choice_final_buil_opt_type_id_list",
+      let v1 = (* "abstract" *) token env v1 in
+      let v2 =
+        (match v2 with
+        | `Final_buil_opt_type_id_list (v1, v2, v3) -> R.Case ("Final_buil_opt_type_id_list",
+            let v1 = (* final_builtin *) token env v1 in
+            let v2 =
+              (match v2 with
+              | Some x -> R.Option (Some (
+                  map_type_ env x
+                ))
+              | None -> R.Option None)
+            in
+            let v3 = map_identifier_list env v3 in
+            R.Tuple [v1; v2; v3]
+          )
+        | `Cova_var_or_type_id_list (v1, v2, v3) -> R.Case ("Cova_var_or_type_id_list",
+            let v1 = (* "covariant" *) token env v1 in
+            let v2 = map_var_or_type env v2 in
+            let v3 = map_identifier_list env v3 in
+            R.Tuple [v1; v2; v3]
+          )
+        | `Var_or_type_id_list (v1, v2) -> R.Case ("Var_or_type_id_list",
+            let v1 = map_var_or_type env v1 in
+            let v2 = map_identifier_list env v2 in
+            R.Tuple [v1; v2]
+          )
+        )
+      in
+      R.Tuple [v1; v2]
     )
   )
 
@@ -5082,6 +5113,46 @@ let map_top_level_definition (env : env) (x : CST.top_level_definition) =
           let v4 = map_initialized_identifier_list env v4 in
           let v5 = (* semicolon *) token env v5 in
           R.Tuple [v1; v2; v3; v4; v5]
+        )
+      | `Opt_meta_exte_buil_choice_final_buil_opt_type_id_list_semi (v1, v2, v3, v4) -> R.Case ("Opt_meta_exte_buil_choice_final_buil_opt_type_id_list_semi",
+          let v1 =
+            (match v1 with
+            | Some x -> R.Option (Some (
+                map_metadata env x
+              ))
+            | None -> R.Option None)
+          in
+          let v2 = (* "external" *) token env v2 in
+          let v3 =
+            (match v3 with
+            | `Final_buil_opt_type_id_list (v1, v2, v3) -> R.Case ("Final_buil_opt_type_id_list",
+                let v1 = (* final_builtin *) token env v1 in
+                let v2 =
+                  (match v2 with
+                  | Some x -> R.Option (Some (
+                      map_type_ env x
+                    ))
+                  | None -> R.Option None)
+                in
+                let v3 = map_identifier_list env v3 in
+                R.Tuple [v1; v2; v3]
+              )
+            | `Opt_late_buil_var_or_type_id_list (v1, v2, v3) -> R.Case ("Opt_late_buil_var_or_type_id_list",
+                let v1 =
+                  (match v1 with
+                  | Some tok -> R.Option (Some (
+                      (* "late" *) token env tok
+                    ))
+                  | None -> R.Option None)
+                in
+                let v2 = map_var_or_type env v2 in
+                let v3 = map_identifier_list env v3 in
+                R.Tuple [v1; v2; v3]
+              )
+            )
+          in
+          let v4 = (* semicolon *) token env v4 in
+          R.Tuple [v1; v2; v3; v4]
         )
       )
     )

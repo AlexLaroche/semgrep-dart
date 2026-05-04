@@ -491,11 +491,11 @@ let children_regexps : (string * Run.exp option) list = [
     Alt [|
       Seq [
         Token (Literal "show");
-        Token (Name "identifier_list");
+        Token (Name "identifier_list_");
       ];
       Seq [
         Token (Literal "hide");
-        Token (Name "identifier_list");
+        Token (Name "identifier_list_");
       ];
     |];
   );
@@ -3582,7 +3582,7 @@ let children_regexps : (string * Run.exp option) list = [
                 Opt (
                   Token (Name "type");
                 );
-                Token (Name "identifier_list_");
+                Token (Name "identifier_list");
               ];
               Seq [
                 Alt [|
@@ -3618,6 +3618,27 @@ let children_regexps : (string * Run.exp option) list = [
         );
         Token (Name "var_or_type");
         Token (Name "initialized_identifier_list");
+      ];
+      Seq [
+        Token (Name "abstract");
+        Alt [|
+          Seq [
+            Token (Name "final_builtin");
+            Opt (
+              Token (Name "type");
+            );
+            Token (Name "identifier_list");
+          ];
+          Seq [
+            Token (Name "covariant");
+            Token (Name "var_or_type");
+            Token (Name "identifier_list");
+          ];
+          Seq [
+            Token (Name "var_or_type");
+            Token (Name "identifier_list");
+          ];
+        |];
       ];
     |];
   );
@@ -3990,6 +4011,29 @@ let children_regexps : (string * Run.exp option) list = [
             Token (Name "inferred_type");
           |];
           Token (Name "initialized_identifier_list");
+          Token (Name "semicolon");
+        ];
+        Seq [
+          Opt (
+            Token (Name "metadata");
+          );
+          Token (Name "external_builtin");
+          Alt [|
+            Seq [
+              Token (Name "final_builtin");
+              Opt (
+                Token (Name "type");
+              );
+              Token (Name "identifier_list");
+            ];
+            Seq [
+              Opt (
+                Token (Name "late_builtin");
+              );
+              Token (Name "var_or_type");
+              Token (Name "identifier_list");
+            ];
+          |];
           Token (Name "semicolon");
         ];
       |];
@@ -5266,23 +5310,23 @@ let trans_combinator ((kind, body) : mt) : CST.combinator =
   | Children v ->
       (match v with
       | Alt (0, v) ->
-          `Show_id_list (
+          `Show_id_list_ (
             (match v with
             | Seq [v0; v1] ->
                 (
                   Run.trans_token (Run.matcher_token v0),
-                  trans_identifier_list (Run.matcher_token v1)
+                  trans_identifier_list_ (Run.matcher_token v1)
                 )
             | _ -> assert false
             )
           )
       | Alt (1, v) ->
-          `Hide_id_list (
+          `Hide_id_list_ (
             (match v with
             | Seq [v0; v1] ->
                 (
                   Run.trans_token (Run.matcher_token v0),
-                  trans_identifier_list (Run.matcher_token v1)
+                  trans_identifier_list_ (Run.matcher_token v1)
                 )
             | _ -> assert false
             )
@@ -11705,21 +11749,21 @@ let trans_declaration_ ((kind, body) : mt) : CST.declaration_ =
             )
           )
       | Alt (14, v) ->
-          `Cova_choice_late_buil_choice_final_buil_opt_type_id_list_ (
+          `Cova_choice_late_buil_choice_final_buil_opt_type_id_list (
             (match v with
             | Seq [v0; v1] ->
                 (
                   trans_covariant (Run.matcher_token v0),
                   (match v1 with
                   | Alt (0, v) ->
-                      `Late_buil_choice_final_buil_opt_type_id_list_ (
+                      `Late_buil_choice_final_buil_opt_type_id_list (
                         (match v with
                         | Seq [v0; v1] ->
                             (
                               trans_late_builtin (Run.matcher_token v0),
                               (match v1 with
                               | Alt (0, v) ->
-                                  `Final_buil_opt_type_id_list_ (
+                                  `Final_buil_opt_type_id_list (
                                     (match v with
                                     | Seq [v0; v1; v2] ->
                                         (
@@ -11728,7 +11772,7 @@ let trans_declaration_ ((kind, body) : mt) : CST.declaration_ =
                                             (fun v -> trans_type_ (Run.matcher_token v))
                                             v1
                                           ,
-                                          trans_identifier_list_ (Run.matcher_token v2)
+                                          trans_identifier_list (Run.matcher_token v2)
                                         )
                                     | _ -> assert false
                                     )
@@ -11819,6 +11863,57 @@ let trans_declaration_ ((kind, body) : mt) : CST.declaration_ =
                   ,
                   trans_var_or_type (Run.matcher_token v1),
                   trans_initialized_identifier_list (Run.matcher_token v2)
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (17, v) ->
+          `Abst_choice_final_buil_opt_type_id_list (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  trans_abstract (Run.matcher_token v0),
+                  (match v1 with
+                  | Alt (0, v) ->
+                      `Final_buil_opt_type_id_list (
+                        (match v with
+                        | Seq [v0; v1; v2] ->
+                            (
+                              trans_final_builtin (Run.matcher_token v0),
+                              Run.opt
+                                (fun v -> trans_type_ (Run.matcher_token v))
+                                v1
+                              ,
+                              trans_identifier_list (Run.matcher_token v2)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | Alt (1, v) ->
+                      `Cova_var_or_type_id_list (
+                        (match v with
+                        | Seq [v0; v1; v2] ->
+                            (
+                              trans_covariant (Run.matcher_token v0),
+                              trans_var_or_type (Run.matcher_token v1),
+                              trans_identifier_list (Run.matcher_token v2)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | Alt (2, v) ->
+                      `Var_or_type_id_list (
+                        (match v with
+                        | Seq [v0; v1] ->
+                            (
+                              trans_var_or_type (Run.matcher_token v0),
+                              trans_identifier_list (Run.matcher_token v1)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | _ -> assert false
+                  )
                 )
             | _ -> assert false
             )
@@ -12536,6 +12631,55 @@ let trans_top_level_definition ((kind, body) : mt) : CST.top_level_definition =
                         ,
                         trans_initialized_identifier_list (Run.matcher_token v3),
                         trans_semicolon (Run.matcher_token v4)
+                      )
+                  | _ -> assert false
+                  )
+                )
+            | Alt (15, v) ->
+                `Opt_meta_exte_buil_choice_final_buil_opt_type_id_list_semi (
+                  (match v with
+                  | Seq [v0; v1; v2; v3] ->
+                      (
+                        Run.opt
+                          (fun v -> trans_metadata (Run.matcher_token v))
+                          v0
+                        ,
+                        trans_external_builtin (Run.matcher_token v1),
+                        (match v2 with
+                        | Alt (0, v) ->
+                            `Final_buil_opt_type_id_list (
+                              (match v with
+                              | Seq [v0; v1; v2] ->
+                                  (
+                                    trans_final_builtin (Run.matcher_token v0),
+                                    Run.opt
+                                      (fun v -> trans_type_ (Run.matcher_token v))
+                                      v1
+                                    ,
+                                    trans_identifier_list (Run.matcher_token v2)
+                                  )
+                              | _ -> assert false
+                              )
+                            )
+                        | Alt (1, v) ->
+                            `Opt_late_buil_var_or_type_id_list (
+                              (match v with
+                              | Seq [v0; v1; v2] ->
+                                  (
+                                    Run.opt
+                                      (fun v -> trans_late_builtin (Run.matcher_token v))
+                                      v0
+                                    ,
+                                    trans_var_or_type (Run.matcher_token v1),
+                                    trans_identifier_list (Run.matcher_token v2)
+                                  )
+                              | _ -> assert false
+                              )
+                            )
+                        | _ -> assert false
+                        )
+                        ,
+                        trans_semicolon (Run.matcher_token v3)
                       )
                   | _ -> assert false
                   )

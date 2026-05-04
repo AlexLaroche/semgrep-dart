@@ -308,14 +308,14 @@ type dotted_identifier_list = (
 
 type type_name = (identifier (*tok*) * type_dot_identifier option)
 
-type combinator = [
-    `Show_id_list of (Token.t (* "show" *) * identifier_list)
-  | `Hide_id_list of (Token.t (* "hide" *) * identifier_list)
-]
-
 type catch_clause = (Token.t (* "catch" *) * catch_parameters)
 
 type dot_shorthand = (Token.t (* "." *) * identifier_or_new)
+
+type combinator = [
+    `Show_id_list_ of (Token.t (* "show" *) * identifier_list_)
+  | `Hide_id_list_ of (Token.t (* "hide" *) * identifier_list_)
+]
 
 type qualified = [
     `Type_name_DOT_id_or_new of (
@@ -1842,16 +1842,16 @@ type declaration_ = [
             )
         ]
     )
-  | `Cova_choice_late_buil_choice_final_buil_opt_type_id_list_ of (
+  | `Cova_choice_late_buil_choice_final_buil_opt_type_id_list of (
         Token.t (* "covariant" *)
       * [
-            `Late_buil_choice_final_buil_opt_type_id_list_ of (
+            `Late_buil_choice_final_buil_opt_type_id_list of (
                 Token.t (* "late" *)
               * [
-                    `Final_buil_opt_type_id_list_ of (
+                    `Final_buil_opt_type_id_list of (
                         final_builtin (*tok*)
                       * type_ option
-                      * identifier_list_
+                      * identifier_list
                     )
                   | `Choice_type_init_id_list of (
                         anon_choice_type_be0da33
@@ -1874,6 +1874,20 @@ type declaration_ = [
         Token.t (* "late" *) option
       * var_or_type
       * initialized_identifier_list
+    )
+  | `Abst_choice_final_buil_opt_type_id_list of (
+        Token.t (* "abstract" *)
+      * [
+            `Final_buil_opt_type_id_list of (
+                final_builtin (*tok*)
+              * type_ option
+              * identifier_list
+            )
+          | `Cova_var_or_type_id_list of (
+                Token.t (* "covariant" *) * var_or_type * identifier_list
+            )
+          | `Var_or_type_id_list of (var_or_type * identifier_list)
+        ]
     )
 ]
 
@@ -2054,6 +2068,23 @@ type top_level_definition = [
           * Token.t (* "late" *) option
           * anon_choice_type_be0da33
           * initialized_identifier_list
+          * semicolon (*tok*)
+        )
+      | `Opt_meta_exte_buil_choice_final_buil_opt_type_id_list_semi of (
+            metadata option
+          * Token.t (* "external" *)
+          * [
+                `Final_buil_opt_type_id_list of (
+                    final_builtin (*tok*)
+                  * type_ option
+                  * identifier_list
+                )
+              | `Opt_late_buil_var_or_type_id_list of (
+                    Token.t (* "late" *) option
+                  * var_or_type
+                  * identifier_list
+                )
+            ]
           * semicolon (*tok*)
         )
     ]
