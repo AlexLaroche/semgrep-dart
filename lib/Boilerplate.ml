@@ -1335,18 +1335,25 @@ and map_element (env : env) (x : CST.element) =
       let v2 = map_argument env v2 in
       R.Tuple [v1; v2]
     )
-  | `Pair (v1, v2, v3, v4) -> R.Case ("Pair",
-      let v1 = map_argument env v1 in
-      let v2 = (* ":" *) token env v2 in
-      let v3 =
-        (match v3 with
+  | `Pair (v1, v2, v3, v4, v5) -> R.Case ("Pair",
+      let v1 =
+        (match v1 with
         | Some tok -> R.Option (Some (
             (* "?" *) token env tok
           ))
         | None -> R.Option None)
       in
-      let v4 = map_argument env v4 in
-      R.Tuple [v1; v2; v3; v4]
+      let v2 = map_argument env v2 in
+      let v3 = (* ":" *) token env v3 in
+      let v4 =
+        (match v4 with
+        | Some tok -> R.Option (Some (
+            (* "?" *) token env tok
+          ))
+        | None -> R.Option None)
+      in
+      let v5 = map_argument env v5 in
+      R.Tuple [v1; v2; v3; v4; v5]
     )
   | `Spread_elem (v1, v2, v3) -> R.Case ("Spread_elem",
       let v1 = (* "..." *) token env v1 in

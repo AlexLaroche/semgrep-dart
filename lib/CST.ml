@@ -581,7 +581,8 @@ and default_named_parameter = [
 and element = [
     `Opt_QMARK_exp of (Token.t (* "?" *) option * argument)
   | `Pair of (
-        argument
+        Token.t (* "?" *) option
+      * argument
       * Token.t (* ":" *)
       * Token.t (* "?" *) option
       * argument
@@ -2452,7 +2453,8 @@ type optional_postional_formal_parameters (* inlined *) = (
 )
 
 type pair (* inlined *) = (
-    argument
+    Token.t (* "?" *) option
+  * argument
   * Token.t (* ":" *)
   * Token.t (* "?" *) option
   * argument

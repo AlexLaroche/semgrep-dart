@@ -2024,6 +2024,9 @@ let children_regexps : (string * Run.exp option) list = [
   "pair",
   Some (
     Seq [
+      Opt (
+        Token (Literal "?");
+      );
       Token (Name "expression");
       Token (Literal ":");
       Opt (
@@ -8494,15 +8497,19 @@ and trans_pair ((kind, body) : mt) : CST.pair =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3] ->
+      | Seq [v0; v1; v2; v3; v4] ->
           (
-            trans_expression (Run.matcher_token v0),
-            Run.trans_token (Run.matcher_token v1),
             Run.opt
               (fun v -> Run.trans_token (Run.matcher_token v))
-              v2
+              v0
             ,
-            trans_expression (Run.matcher_token v3)
+            trans_expression (Run.matcher_token v1),
+            Run.trans_token (Run.matcher_token v2),
+            Run.opt
+              (fun v -> Run.trans_token (Run.matcher_token v))
+              v3
+            ,
+            trans_expression (Run.matcher_token v4)
           )
       | _ -> assert false
       )

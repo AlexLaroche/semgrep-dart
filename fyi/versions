@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: b18ec36cba18685ddf430506e7fbe65397773d47
+Latest commit in repo: b1f0a632d18910fe5f2bb9e547223b0942457205
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,30 +10,33 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: b18ec36cba18685ddf430506e7fbe65397773d47
+Latest commit in repo: b1f0a632d18910fe5f2bb9e547223b0942457205
 Last change in file:
-  commit b18ec36cba18685ddf430506e7fbe65397773d47
+  commit b1f0a632d18910fe5f2bb9e547223b0942457205
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 13:52:31 2026 -0400
+  Date:   Mon May 4 14:12:19 2026 -0400
   
-      Allow full expression on field initializer right-hand side
+      Allow null-aware key in map literal entry
       
-      Per Dart spec the right-hand side of a constructor field initializer
-      is a full `expression`, including compound assignments such as `??=`.
-      The grammar restricted it to `_real_expression`, which excluded
-      assignment expressions, so code such as
+      Per Dart 3 (null-aware elements), a map entry may use `?` before the
+      key as well as before the value to mark the corresponding sub-
+      expression as null-aware:
       
-          A(int? x) : x = x ??= 5;
+          {
+            ?maybeKey: 1,         // omit entry if maybeKey is null
+            key: ?maybeValue,     // omit entry if maybeValue is null
+            ?maybeKey: ?maybeValue,
+          }
       
-      failed to parse. Real-world examples in `matrix` (constructor body
-      chained `??=` assignments) and `syncfusion_flutter_gauges`.
+      The grammar previously allowed `?` only before the value. Adds
+      `optional('?')` before the key in the `pair` rule. Affects packages
+      such as `analyzer` and `drift_dev`.
       
-      Reference: Dart Language Specification — Constructor field
-      initializers (`fieldInitializer`).
+      Reference: Dart Language Specification — Null-aware elements.
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 56e76fcc142245d99467b47fab9f940a2f11ce2d
+Latest commit in repo: 80444bc1f8148836966efe1664ed039ba2b5e45f
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
