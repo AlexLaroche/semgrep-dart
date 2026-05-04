@@ -94,6 +94,10 @@ module.exports = grammar({
 
     conflicts: $ => [
         [$._record_literal_no_const, $.record_field],
+        [$._record_literal_no_const, $.record_type],
+        [$._record_literal_no_const, $._strict_formal_parameter_list],
+        [$.getter_signature, $.function_signature, $._var_or_type],
+        [$.setter_signature, $.function_signature, $._var_or_type],
         [$.block, $.set_or_map_literal],
         [$._type_name, $._primary, $.function_signature],
         [$._primary, $.function_signature],
@@ -538,14 +542,25 @@ module.exports = grammar({
             $._record_literal_no_const,
         ),
 
-        _record_literal_no_const: $ => seq(
-            '(',
-            choice(
-                seq($.label, $._expression),
-                seq($._expression, ','),
-                commaSep2TrailingComma($.record_field),
+        // Per Dart spec (Records, recordLiteral): a record literal may be
+        // the empty record `()` (zero positional, zero named fields), a
+        // single-named-field record `(name: e)`, a single-positional record
+        // requiring a trailing comma `(e,)`, or two-or-more comma-separated
+        // record fields. Disambiguates against parenthesized_expression which
+        // matches `(e)` (no trailing comma, exactly one expression). The empty
+        // form gets a negative dynamic precedence so the parser prefers the
+        // existing `arguments`/type-arguments path (`f<T>()`) when ambiguous.
+        _record_literal_no_const: $ => choice(
+            prec.dynamic(-1, seq('(', ')')),
+            seq(
+                '(',
+                choice(
+                    seq($.label, $._expression),
+                    seq($._expression, ','),
+                    commaSep2TrailingComma($.record_field),
+                ),
+                ')'
             ),
-            ')'
         ),
 
         record_field: $ => seq(optional($.label), $._expression),
@@ -1058,13 +1073,23 @@ module.exports = grammar({
                 $.identifier
             )
         ),
-        const_object_expression: $ => seq(
-            $.const_builtin,
-            $._type_not_void,
-            optional(
-                $._dot_identifier
+        const_object_expression: $ => choice(
+            seq(
+                $.const_builtin,
+                $._type_not_void,
+                optional(
+                    $._dot_identifier
+                ),
+                $.arguments
             ),
-            $.arguments
+            // Dart 3.10 allows `const` with a dot-shorthand constructor
+            // invocation: `const .new(...)` / `const .named(...)`. The
+            // receiver type is inferred from the context type.
+            seq(
+                $.const_builtin,
+                $.dot_shorthand,
+                $.arguments,
+            ),
         ),
 
 
@@ -1344,6 +1369,12 @@ module.exports = grammar({
             $.identifier,
             $.qualified,
             $.const_object_expression,
+            // Dart 3.10 dot-shorthand may appear as a constant pattern
+            // (e.g. `case .red:`, `case .new():`, `case .fromRGB(1,2,3):`).
+            // The context type of the matched value supplies the receiver
+            // type. The `const` form (`const .new(...)` / `const .named(...)`)
+            // is reached via `const_object_expression` above.
+            seq($.dot_shorthand, optional(seq(optional($.type_arguments), $.arguments))),
             seq($.const_builtin, optional($.type_arguments), '[', commaSep1TrailingComma($._element), ']'),
             seq($.const_builtin, optional($.type_arguments), '{', commaSep1TrailingComma($._element), '}'),
             seq($.const_builtin, '(', $._expression, ')'),
@@ -2033,8 +2064,16 @@ module.exports = grammar({
         initialized_identifier_list: $ => commaSep1(
             $.initialized_identifier
         ),
+        // Per Dart spec, `get` and `set` are built-in identifiers and may be
+        // used as ordinary identifiers (e.g. as a field name or local
+        // variable). The `_declared_identifier` rule already aliases them;
+        // mirror that here so `int set = 0;` and `var get = ...;` parse.
         initialized_identifier: $ => seq(
-            $.identifier,
+            choice(
+                $.identifier,
+                alias($._get, $.identifier),
+                alias($._set, $.identifier),
+            ),
             optional(seq(
                 '=',
                 $._expression
