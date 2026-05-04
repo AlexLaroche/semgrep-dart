@@ -758,17 +758,6 @@ and map_annotation (env : env) ((v1, v2, v3) : CST.annotation) =
   in
   R.Tuple [v1; v2; v3]
 
-and map_anon_arg_rep_COMMA_arg_eb223b2 (env : env) ((v1, v2) : CST.anon_arg_rep_COMMA_arg_eb223b2) =
-  let v1 = map_argument env v1 in
-  let v2 =
-    R.List (List.map (fun (v1, v2) ->
-      let v1 = (* "," *) token env v1 in
-      let v2 = map_argument env v2 in
-      R.Tuple [v1; v2]
-    ) v2)
-  in
-  R.Tuple [v1; v2]
-
 and map_anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f (env : env) ((v1, v2, v3) : CST.anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f) =
   let v1 = map_element env v1 in
   let v2 =
@@ -1588,7 +1577,7 @@ and map_for_loop_parts_ (env : env) (x : CST.for_loop_parts_) =
       let v3 = map_argument env v3 in
       R.Tuple [v1; v2; v3]
     )
-  | `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp (v1, v2, v3, v4) -> R.Case ("Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp",
+  | `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp_opt_COMMA (v1, v2, v3, v4) -> R.Case ("Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp_opt_COMMA",
       let v1 =
         (match v1 with
         | Some x -> R.Option (Some (
@@ -1599,8 +1588,16 @@ and map_for_loop_parts_ (env : env) (x : CST.for_loop_parts_) =
             | `Opt_exp_rep_COMMA_exp_semi (v1, v2) -> R.Case ("Opt_exp_rep_COMMA_exp_semi",
                 let v1 =
                   (match v1 with
-                  | Some x -> R.Option (Some (
-                      map_anon_arg_rep_COMMA_arg_eb223b2 env x
+                  | Some (v1, v2) -> R.Option (Some (
+                      let v1 = map_argument env v1 in
+                      let v2 =
+                        R.List (List.map (fun (v1, v2) ->
+                          let v1 = (* "," *) token env v1 in
+                          let v2 = map_argument env v2 in
+                          R.Tuple [v1; v2]
+                        ) v2)
+                      in
+                      R.Tuple [v1; v2]
                     ))
                   | None -> R.Option None)
                 in
@@ -1621,8 +1618,23 @@ and map_for_loop_parts_ (env : env) (x : CST.for_loop_parts_) =
       let v3 = (* semicolon *) token env v3 in
       let v4 =
         (match v4 with
-        | Some x -> R.Option (Some (
-            map_anon_arg_rep_COMMA_arg_eb223b2 env x
+        | Some (v1, v2, v3) -> R.Option (Some (
+            let v1 = map_argument env v1 in
+            let v2 =
+              R.List (List.map (fun (v1, v2) ->
+                let v1 = (* "," *) token env v1 in
+                let v2 = map_argument env v2 in
+                R.Tuple [v1; v2]
+              ) v2)
+            in
+            let v3 =
+              (match v3 with
+              | Some tok -> R.Option (Some (
+                  (* "," *) token env tok
+                ))
+              | None -> R.Option None)
+            in
+            R.Tuple [v1; v2; v3]
           ))
         | None -> R.Option None)
       in
@@ -4143,7 +4155,7 @@ let map_initializer_list_entry (env : env) (x : CST.initializer_list_entry) =
       let v4 = map_arguments env v4 in
       R.Tuple [v1; v2; v3; v4]
     )
-  | `Field_init (v1, v2, v3, v4, v5) -> R.Case ("Field_init",
+  | `Field_init (v1, v2, v3, v4) -> R.Case ("Field_init",
       let v1 =
         (match v1 with
         | Some (v1, v2) -> R.Option (Some (
@@ -4155,9 +4167,8 @@ let map_initializer_list_entry (env : env) (x : CST.initializer_list_entry) =
       in
       let v2 = (* pattern [a-zA-Z_$][\w$]* *) token env v2 in
       let v3 = (* "=" *) token env v3 in
-      let v4 = map_real_expression env v4 in
-      let v5 = R.List (List.map (map_cascade_section env) v5) in
-      R.Tuple [v1; v2; v3; v4; v5]
+      let v4 = map_argument env v4 in
+      R.Tuple [v1; v2; v3; v4]
     )
   | `Asse x -> R.Case ("Asse",
       map_assertion env x

@@ -1292,6 +1292,9 @@ let children_regexps : (string * Run.exp option) list = [
                 Token (Name "expression");
               ];
             );
+            Opt (
+              Token (Literal ",");
+            );
           ];
         );
       ];
@@ -3083,10 +3086,7 @@ let children_regexps : (string * Run.exp option) list = [
       );
       Token (Name "identifier");
       Token (Literal "=");
-      Token (Name "real_expression");
-      Repeat (
-        Token (Name "cascade_section");
-      );
+      Token (Name "expression");
     ];
   );
   "setter_signature",
@@ -6961,7 +6961,7 @@ and trans_for_loop_parts_ ((kind, body) : mt) : CST.for_loop_parts_ =
             )
           )
       | Alt (1, v) ->
-          `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp (
+          `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp_opt_COMMA (
             (match v with
             | Seq [v0; v1; v2; v3] ->
                 (
@@ -7019,7 +7019,7 @@ and trans_for_loop_parts_ ((kind, body) : mt) : CST.for_loop_parts_ =
                   Run.opt
                     (fun v ->
                       (match v with
-                      | Seq [v0; v1] ->
+                      | Seq [v0; v1; v2] ->
                           (
                             trans_expression (Run.matcher_token v0),
                             Run.repeat
@@ -7034,6 +7034,10 @@ and trans_for_loop_parts_ ((kind, body) : mt) : CST.for_loop_parts_ =
                                 )
                               )
                               v1
+                            ,
+                            Run.opt
+                              (fun v -> Run.trans_token (Run.matcher_token v))
+                              v2
                           )
                       | _ -> assert false
                       )
@@ -10756,7 +10760,7 @@ let trans_field_initializer ((kind, body) : mt) : CST.field_initializer =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4] ->
+      | Seq [v0; v1; v2; v3] ->
           (
             Run.opt
               (fun v ->
@@ -10773,10 +10777,7 @@ let trans_field_initializer ((kind, body) : mt) : CST.field_initializer =
             ,
             trans_identifier (Run.matcher_token v1),
             Run.trans_token (Run.matcher_token v2),
-            trans_real_expression (Run.matcher_token v3),
-            Run.repeat
-              (fun v -> trans_cascade_section (Run.matcher_token v))
-              v4
+            trans_expression (Run.matcher_token v3)
           )
       | _ -> assert false
       )

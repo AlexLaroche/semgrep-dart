@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-dart/LICENSE
 Git repo name: tree-sitter-dart
-Latest commit in repo: 39120ae068771f0372653ad356bd5878f645ae06
+Latest commit in repo: b18ec36cba18685ddf430506e7fbe65397773d47
 Last change in file:
   commit 672d0b65c9bfa11a074b2e21f818c69cd730f1cc
   Author: Tim Whiting <tim@whitings.org>
@@ -10,34 +10,30 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-dart/grammar.js
 Git repo name: tree-sitter-dart
-Latest commit in repo: 39120ae068771f0372653ad356bd5878f645ae06
+Latest commit in repo: b18ec36cba18685ddf430506e7fbe65397773d47
 Last change in file:
-  commit 39120ae068771f0372653ad356bd5878f645ae06
+  commit b18ec36cba18685ddf430506e7fbe65397773d47
   Author: Alexandre Laroche <alexandre.laroche.27@gmail.com>
-  Date:   Mon May 4 13:34:14 2026 -0400
+  Date:   Mon May 4 13:52:31 2026 -0400
   
-      Support external instance fields with `final`/`covariant`
+      Allow full expression on field initializer right-hand side
       
-      Per the Dart specification (Static Interop / External Members), a
-      class instance field may be declared with the `external` modifier in
-      combination with `final` or `covariant`. The grammar previously
-      covered only the bare `external <type> <id>` form (via the
-      `_external_and_static + _type + identifier` rule), so
+      Per Dart spec the right-hand side of a constructor field initializer
+      is a full `expression`, including compound assignments such as `??=`.
+      The grammar restricted it to `_real_expression`, which excluded
+      assignment expressions, so code such as
       
-          extension type _Foo._(JSObject _) implements JSObject {
-            external final JSString field;
-          }
+          A(int? x) : x = x ??= 5;
       
-      failed to parse. Affects `dart:js_interop` extension types in
-      packages such as `ditto_live`.
+      failed to parse. Real-world examples in `matrix` (constructor body
+      chained `??=` assignments) and `syncfusion_flutter_gauges`.
       
-      Adds two new declaration alternatives:
-        external final <type>? <id-list>
-        external covariant <var-or-type> <id-list>
+      Reference: Dart Language Specification — Constructor field
+      initializers (`fieldInitializer`).
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 398fcff3e486764a11f3524a0bd8d16ff14375f0
+Latest commit in repo: 56e76fcc142245d99467b47fab9f940a2f11ce2d
 Last change in file:
   commit 7709d5bc51acb965f3a2dd2b8fc60ffc8b6d9ac6
   Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>

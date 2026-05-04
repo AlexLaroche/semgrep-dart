@@ -356,11 +356,6 @@ and annotation = (
     ]
 )
 
-and anon_arg_rep_COMMA_arg_eb223b2 = (
-    argument
-  * (Token.t (* "," *) * argument) list (* zero or more *)
-)
-
 and anon_elem_rep_COMMA_elem_opt_COMMA_4ec364f = (
     element
   * (Token.t (* "," *) * element) list (* zero or more *)
@@ -682,18 +677,27 @@ and for_loop_parts_ = [
       * Token.t (* "in" *)
       * argument
     )
-  | `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp of (
+  | `Opt_choice_local_var_decl_opt_exp_semi_opt_exp_rep_COMMA_exp_opt_COMMA of (
         [
             `Local_var_decl of local_variable_declaration
           | `Opt_exp_rep_COMMA_exp_semi of (
-                anon_arg_rep_COMMA_arg_eb223b2 option
+                (
+                    argument
+                  * (Token.t (* "," *) * argument) list (* zero or more *)
+                )
+                  option
               * semicolon (*tok*)
             )
         ]
           option
       * argument option
       * semicolon (*tok*)
-      * anon_arg_rep_COMMA_arg_eb223b2 option
+      * (
+            argument
+          * (Token.t (* "," *) * argument) list (* zero or more *)
+          * Token.t (* "," *) option
+        )
+          option
     )
   | `Choice_final_buil_outer_pat_in_exp of (
         anon_choice_final_buil_80e16d2 * outer_pattern * Token.t (* "in" *)
@@ -1687,8 +1691,7 @@ type initializer_list_entry = [
         (Token.t (* "this" *) * Token.t (* "." *)) option
       * identifier (*tok*)
       * Token.t (* "=" *)
-      * real_expression
-      * cascade_section list (* zero or more *)
+      * argument
     )
   | `Asse of assertion
 ]
@@ -2547,8 +2550,7 @@ type field_initializer (* inlined *) = (
     (Token.t (* "this" *) * Token.t (* "." *)) option
   * identifier (*tok*)
   * Token.t (* "=" *)
-  * real_expression
-  * cascade_section list (* zero or more *)
+  * argument
 )
 
 type variable_declaration (* inlined *) = (
