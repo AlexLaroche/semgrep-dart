@@ -893,14 +893,21 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "const_object_expression",
   Some (
-    Seq [
-      Token (Name "const_builtin");
-      Token (Name "type_not_void");
-      Opt (
-        Token (Name "dot_identifier");
-      );
-      Token (Name "arguments");
-    ];
+    Alt [|
+      Seq [
+        Token (Name "const_builtin");
+        Token (Name "type_not_void");
+        Opt (
+          Token (Name "dot_identifier");
+        );
+        Token (Name "arguments");
+      ];
+      Seq [
+        Token (Name "const_builtin");
+        Token (Name "dot_shorthand");
+        Token (Name "arguments");
+      ];
+    |];
   );
   "constant_pattern",
   Some (
@@ -918,6 +925,17 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "identifier");
       Token (Name "qualified");
       Token (Name "const_object_expression");
+      Seq [
+        Token (Name "dot_shorthand");
+        Opt (
+          Seq [
+            Opt (
+              Token (Name "type_arguments");
+            );
+            Token (Name "arguments");
+          ];
+        );
+      ];
       Seq [
         Token (Name "const_builtin");
         Opt (
@@ -1507,7 +1525,11 @@ let children_regexps : (string * Run.exp option) list = [
   "initialized_identifier",
   Some (
     Seq [
-      Token (Name "identifier");
+      Alt [|
+        Token (Name "identifier");
+        Token (Name "get");
+        Token (Name "set");
+      |];
       Opt (
         Seq [
           Token (Literal "=");
@@ -2187,32 +2209,38 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "record_literal_no_const",
   Some (
-    Seq [
-      Token (Literal "(");
-      Alt [|
-        Seq [
-          Token (Name "label");
-          Token (Name "expression");
-        ];
-        Seq [
-          Token (Name "expression");
-          Token (Literal ",");
-        ];
-        Seq [
-          Token (Name "record_field");
-          Repeat1 (
-            Seq [
-              Token (Literal ",");
-              Token (Name "record_field");
-            ];
-          );
-          Opt (
+    Alt [|
+      Seq [
+        Token (Literal "(");
+        Token (Literal ")");
+      ];
+      Seq [
+        Token (Literal "(");
+        Alt [|
+          Seq [
+            Token (Name "label");
+            Token (Name "expression");
+          ];
+          Seq [
+            Token (Name "expression");
             Token (Literal ",");
-          );
-        ];
-      |];
-      Token (Literal ")");
-    ];
+          ];
+          Seq [
+            Token (Name "record_field");
+            Repeat1 (
+              Seq [
+                Token (Literal ",");
+                Token (Name "record_field");
+              ];
+            );
+            Opt (
+              Token (Literal ",");
+            );
+          ];
+        |];
+        Token (Literal ")");
+      ];
+    |];
   );
   "record_pattern",
   Some (
@@ -6075,15 +6103,33 @@ and trans_const_object_expression ((kind, body) : mt) : CST.const_object_express
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3] ->
-          (
-            trans_const_builtin (Run.matcher_token v0),
-            trans_type_not_void (Run.matcher_token v1),
-            Run.opt
-              (fun v -> trans_dot_identifier (Run.matcher_token v))
-              v2
-            ,
-            trans_arguments (Run.matcher_token v3)
+      | Alt (0, v) ->
+          `Const_buil_type_not_void_opt_dot_id_args (
+            (match v with
+            | Seq [v0; v1; v2; v3] ->
+                (
+                  trans_const_builtin (Run.matcher_token v0),
+                  trans_type_not_void (Run.matcher_token v1),
+                  Run.opt
+                    (fun v -> trans_dot_identifier (Run.matcher_token v))
+                    v2
+                  ,
+                  trans_arguments (Run.matcher_token v3)
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Const_buil_dot_shor_args (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  trans_const_builtin (Run.matcher_token v0),
+                  trans_dot_shorthand (Run.matcher_token v1),
+                  trans_arguments (Run.matcher_token v2)
+                )
+            | _ -> assert false
+            )
           )
       | _ -> assert false
       )
@@ -6136,6 +6182,31 @@ and trans_constant_pattern ((kind, body) : mt) : CST.constant_pattern =
             trans_const_object_expression (Run.matcher_token v)
           )
       | Alt (8, v) ->
+          `Dot_shor_opt_opt_type_args_args (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  trans_dot_shorthand (Run.matcher_token v0),
+                  Run.opt
+                    (fun v ->
+                      (match v with
+                      | Seq [v0; v1] ->
+                          (
+                            Run.opt
+                              (fun v -> trans_type_arguments (Run.matcher_token v))
+                              v0
+                            ,
+                            trans_arguments (Run.matcher_token v1)
+                          )
+                      | _ -> assert false
+                      )
+                    )
+                    v1
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (9, v) ->
           `Const_buil_opt_type_args_LBRACK_elem_rep_COMMA_elem_opt_COMMA_RBRACK (
             (match v with
             | Seq [v0; v1; v2; v3; v4; v5; v6] ->
@@ -6169,7 +6240,7 @@ and trans_constant_pattern ((kind, body) : mt) : CST.constant_pattern =
             | _ -> assert false
             )
           )
-      | Alt (9, v) ->
+      | Alt (10, v) ->
           `Const_buil_opt_type_args_LCURL_elem_rep_COMMA_elem_opt_COMMA_RCURL (
             (match v with
             | Seq [v0; v1; v2; v3; v4; v5; v6] ->
@@ -6203,7 +6274,7 @@ and trans_constant_pattern ((kind, body) : mt) : CST.constant_pattern =
             | _ -> assert false
             )
           )
-      | Alt (10, v) ->
+      | Alt (11, v) ->
           `Const_buil_LPAR_exp_RPAR (
             (match v with
             | Seq [v0; v1; v2; v3] ->
@@ -7329,7 +7400,22 @@ and trans_initialized_identifier ((kind, body) : mt) : CST.initialized_identifie
       (match v with
       | Seq [v0; v1] ->
           (
-            trans_identifier (Run.matcher_token v0),
+            (match v0 with
+            | Alt (0, v) ->
+                `Id (
+                  trans_identifier (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Get (
+                  trans_get (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Set (
+                  trans_set (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
             Run.opt
               (fun v ->
                 (match v with
@@ -8748,62 +8834,79 @@ and trans_record_literal_no_const ((kind, body) : mt) : CST.record_literal_no_co
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            (match v1 with
-            | Alt (0, v) ->
-                `Label_exp (
-                  (match v with
-                  | Seq [v0; v1] ->
-                      (
-                        trans_label (Run.matcher_token v0),
-                        trans_expression (Run.matcher_token v1)
-                      )
-                  | _ -> assert false
-                  )
-                )
-            | Alt (1, v) ->
-                `Exp_COMMA (
-                  (match v with
-                  | Seq [v0; v1] ->
-                      (
-                        trans_expression (Run.matcher_token v0),
-                        Run.trans_token (Run.matcher_token v1)
-                      )
-                  | _ -> assert false
-                  )
-                )
-            | Alt (2, v) ->
-                `Record_field_rep1_COMMA_record_field_opt_COMMA (
-                  (match v with
-                  | Seq [v0; v1; v2] ->
-                      (
-                        trans_record_field (Run.matcher_token v0),
-                        Run.repeat1
-                          (fun v ->
-                            (match v with
-                            | Seq [v0; v1] ->
-                                (
-                                  Run.trans_token (Run.matcher_token v0),
-                                  trans_record_field (Run.matcher_token v1)
-                                )
-                            | _ -> assert false
-                            )
-                          )
-                          v1
-                        ,
-                        Run.opt
-                          (fun v -> Run.trans_token (Run.matcher_token v))
-                          v2
-                      )
-                  | _ -> assert false
-                  )
+      | Alt (0, v) ->
+          `LPAR_RPAR (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  Run.trans_token (Run.matcher_token v0),
+                  Run.trans_token (Run.matcher_token v1)
                 )
             | _ -> assert false
             )
-            ,
-            Run.trans_token (Run.matcher_token v2)
+          )
+      | Alt (1, v) ->
+          `LPAR_choice_label_exp_RPAR (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  Run.trans_token (Run.matcher_token v0),
+                  (match v1 with
+                  | Alt (0, v) ->
+                      `Label_exp (
+                        (match v with
+                        | Seq [v0; v1] ->
+                            (
+                              trans_label (Run.matcher_token v0),
+                              trans_expression (Run.matcher_token v1)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | Alt (1, v) ->
+                      `Exp_COMMA (
+                        (match v with
+                        | Seq [v0; v1] ->
+                            (
+                              trans_expression (Run.matcher_token v0),
+                              Run.trans_token (Run.matcher_token v1)
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | Alt (2, v) ->
+                      `Record_field_rep1_COMMA_record_field_opt_COMMA (
+                        (match v with
+                        | Seq [v0; v1; v2] ->
+                            (
+                              trans_record_field (Run.matcher_token v0),
+                              Run.repeat1
+                                (fun v ->
+                                  (match v with
+                                  | Seq [v0; v1] ->
+                                      (
+                                        Run.trans_token (Run.matcher_token v0),
+                                        trans_record_field (Run.matcher_token v1)
+                                      )
+                                  | _ -> assert false
+                                  )
+                                )
+                                v1
+                              ,
+                              Run.opt
+                                (fun v -> Run.trans_token (Run.matcher_token v))
+                                v2
+                            )
+                        | _ -> assert false
+                        )
+                      )
+                  | _ -> assert false
+                  )
+                  ,
+                  Run.trans_token (Run.matcher_token v2)
+                )
+            | _ -> assert false
+            )
           )
       | _ -> assert false
       )

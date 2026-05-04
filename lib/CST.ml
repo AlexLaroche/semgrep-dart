@@ -477,12 +477,17 @@ and conditional_assignable_selector = [
   | `QMARK_index_sele of (Token.t (* "?" *) * index_selector)
 ]
 
-and const_object_expression = (
-    const_builtin (*tok*)
-  * type_not_void
-  * dot_identifier option
-  * arguments
-)
+and const_object_expression = [
+    `Const_buil_type_not_void_opt_dot_id_args of (
+        const_builtin (*tok*)
+      * type_not_void
+      * dot_identifier option
+      * arguments
+    )
+  | `Const_buil_dot_shor_args of (
+        const_builtin (*tok*) * dot_shorthand * arguments
+    )
+]
 
 and constant_pattern = [
     `Bool_lit of bool_literal
@@ -493,6 +498,10 @@ and constant_pattern = [
   | `Id of identifier (*tok*)
   | `Qual of qualified
   | `Const_obj_exp of const_object_expression
+  | `Dot_shor_opt_opt_type_args_args of (
+        dot_shorthand
+      * argument_part option
+    )
   | `Const_buil_opt_type_args_LBRACK_elem_rep_COMMA_elem_opt_COMMA_RBRACK of (
         const_builtin (*tok*)
       * type_arguments option
@@ -760,7 +769,7 @@ and if_null_expression =
 and index_selector = (Token.t (* "[" *) * argument * Token.t (* "]" *))
 
 and initialized_identifier = (
-    identifier (*tok*)
+    anon_choice_id_2354d68
   * (Token.t (* "=" *) * argument) option
 )
 
@@ -1086,19 +1095,22 @@ and real_expression = [
 
 and record_field = (label option * argument)
 
-and record_literal_no_const = (
-    Token.t (* "(" *)
-  * [
-        `Label_exp of named_argument
-      | `Exp_COMMA of (argument * Token.t (* "," *))
-      | `Record_field_rep1_COMMA_record_field_opt_COMMA of (
-            record_field
-          * (Token.t (* "," *) * record_field) list (* one or more *)
-          * Token.t (* "," *) option
-        )
-    ]
-  * Token.t (* ")" *)
-)
+and record_literal_no_const = [
+    `LPAR_RPAR of (Token.t (* "(" *) * Token.t (* ")" *))
+  | `LPAR_choice_label_exp_RPAR of (
+        Token.t (* "(" *)
+      * [
+            `Label_exp of named_argument
+          | `Exp_COMMA of (argument * Token.t (* "," *))
+          | `Record_field_rep1_COMMA_record_field_opt_COMMA of (
+                record_field
+              * (Token.t (* "," *) * record_field) list (* one or more *)
+              * Token.t (* "," *) option
+            )
+        ]
+      * Token.t (* ")" *)
+    )
+]
 
 and record_pattern = (
     Token.t (* "(" *)

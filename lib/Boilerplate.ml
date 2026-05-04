@@ -1044,18 +1044,28 @@ and map_conditional_assignable_selector (env : env) (x : CST.conditional_assigna
     )
   )
 
-and map_const_object_expression (env : env) ((v1, v2, v3, v4) : CST.const_object_expression) =
-  let v1 = (* const_builtin *) token env v1 in
-  let v2 = map_type_not_void env v2 in
-  let v3 =
-    (match v3 with
-    | Some x -> R.Option (Some (
-        map_dot_identifier env x
-      ))
-    | None -> R.Option None)
-  in
-  let v4 = map_arguments env v4 in
-  R.Tuple [v1; v2; v3; v4]
+and map_const_object_expression (env : env) (x : CST.const_object_expression) =
+  (match x with
+  | `Const_buil_type_not_void_opt_dot_id_args (v1, v2, v3, v4) -> R.Case ("Const_buil_type_not_void_opt_dot_id_args",
+      let v1 = (* const_builtin *) token env v1 in
+      let v2 = map_type_not_void env v2 in
+      let v3 =
+        (match v3 with
+        | Some x -> R.Option (Some (
+            map_dot_identifier env x
+          ))
+        | None -> R.Option None)
+      in
+      let v4 = map_arguments env v4 in
+      R.Tuple [v1; v2; v3; v4]
+    )
+  | `Const_buil_dot_shor_args (v1, v2, v3) -> R.Case ("Const_buil_dot_shor_args",
+      let v1 = (* const_builtin *) token env v1 in
+      let v2 = map_dot_shorthand env v2 in
+      let v3 = map_arguments env v3 in
+      R.Tuple [v1; v2; v3]
+    )
+  )
 
 and map_constant_pattern (env : env) (x : CST.constant_pattern) =
   (match x with
@@ -1090,6 +1100,17 @@ and map_constant_pattern (env : env) (x : CST.constant_pattern) =
     )
   | `Const_obj_exp x -> R.Case ("Const_obj_exp",
       map_const_object_expression env x
+    )
+  | `Dot_shor_opt_opt_type_args_args (v1, v2) -> R.Case ("Dot_shor_opt_opt_type_args_args",
+      let v1 = map_dot_shorthand env v1 in
+      let v2 =
+        (match v2 with
+        | Some x -> R.Option (Some (
+            map_argument_part env x
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2]
     )
   | `Const_buil_opt_type_args_LBRACK_elem_rep_COMMA_elem_opt_COMMA_RBRACK (v1, v2, v3, v4, v5, v6, v7) -> R.Case ("Const_buil_opt_type_args_LBRACK_elem_rep_COMMA_elem_opt_COMMA_RBRACK",
       let v1 = (* const_builtin *) token env v1 in
@@ -1822,7 +1843,7 @@ and map_index_selector (env : env) ((v1, v2, v3) : CST.index_selector) =
   R.Tuple [v1; v2; v3]
 
 and map_initialized_identifier (env : env) ((v1, v2) : CST.initialized_identifier) =
-  let v1 = (* pattern [a-zA-Z_$][\w$]* *) token env v1 in
+  let v1 = map_anon_choice_id_2354d68 env v1 in
   let v2 =
     (match v2 with
     | Some (v1, v2) -> R.Option (Some (
@@ -2680,40 +2701,49 @@ and map_record_field (env : env) ((v1, v2) : CST.record_field) =
   let v2 = map_argument env v2 in
   R.Tuple [v1; v2]
 
-and map_record_literal_no_const (env : env) ((v1, v2, v3) : CST.record_literal_no_const) =
-  let v1 = (* "(" *) token env v1 in
-  let v2 =
-    (match v2 with
-    | `Label_exp x -> R.Case ("Label_exp",
-        map_named_argument env x
-      )
-    | `Exp_COMMA (v1, v2) -> R.Case ("Exp_COMMA",
-        let v1 = map_argument env v1 in
-        let v2 = (* "," *) token env v2 in
-        R.Tuple [v1; v2]
-      )
-    | `Record_field_rep1_COMMA_record_field_opt_COMMA (v1, v2, v3) -> R.Case ("Record_field_rep1_COMMA_record_field_opt_COMMA",
-        let v1 = map_record_field env v1 in
-        let v2 =
-          R.List (List.map (fun (v1, v2) ->
-            let v1 = (* "," *) token env v1 in
-            let v2 = map_record_field env v2 in
-            R.Tuple [v1; v2]
-          ) v2)
-        in
-        let v3 =
-          (match v3 with
-          | Some tok -> R.Option (Some (
-              (* "," *) token env tok
-            ))
-          | None -> R.Option None)
-        in
-        R.Tuple [v1; v2; v3]
-      )
+and map_record_literal_no_const (env : env) (x : CST.record_literal_no_const) =
+  (match x with
+  | `LPAR_RPAR (v1, v2) -> R.Case ("LPAR_RPAR",
+      let v1 = (* "(" *) token env v1 in
+      let v2 = (* ")" *) token env v2 in
+      R.Tuple [v1; v2]
     )
-  in
-  let v3 = (* ")" *) token env v3 in
-  R.Tuple [v1; v2; v3]
+  | `LPAR_choice_label_exp_RPAR (v1, v2, v3) -> R.Case ("LPAR_choice_label_exp_RPAR",
+      let v1 = (* "(" *) token env v1 in
+      let v2 =
+        (match v2 with
+        | `Label_exp x -> R.Case ("Label_exp",
+            map_named_argument env x
+          )
+        | `Exp_COMMA (v1, v2) -> R.Case ("Exp_COMMA",
+            let v1 = map_argument env v1 in
+            let v2 = (* "," *) token env v2 in
+            R.Tuple [v1; v2]
+          )
+        | `Record_field_rep1_COMMA_record_field_opt_COMMA (v1, v2, v3) -> R.Case ("Record_field_rep1_COMMA_record_field_opt_COMMA",
+            let v1 = map_record_field env v1 in
+            let v2 =
+              R.List (List.map (fun (v1, v2) ->
+                let v1 = (* "," *) token env v1 in
+                let v2 = map_record_field env v2 in
+                R.Tuple [v1; v2]
+              ) v2)
+            in
+            let v3 =
+              (match v3 with
+              | Some tok -> R.Option (Some (
+                  (* "," *) token env tok
+                ))
+              | None -> R.Option None)
+            in
+            R.Tuple [v1; v2; v3]
+          )
+        )
+      in
+      let v3 = (* ")" *) token env v3 in
+      R.Tuple [v1; v2; v3]
+    )
+  )
 
 and map_record_pattern (env : env) ((v1, v2, v3, v4, v5) : CST.record_pattern) =
   let v1 = (* "(" *) token env v1 in
