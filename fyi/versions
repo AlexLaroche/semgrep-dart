@@ -96,28 +96,36 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: e8c4f61fadf41268ed4509bf08d5bf537ec8e402
+Latest commit in repo: dde5fe38968853dc015d0413fdf8049d91d83c6e
 Last change in file:
-  commit e8c4f61fadf41268ed4509bf08d5bf537ec8e402
+  commit dde5fe38968853dc015d0413fdf8049d91d83c6e
   Author: Alexandre Laroche <larochealexandre@hotmail.com>
-  Date:   Wed Jun 3 08:56:13 2026 -0400
+  Date:   Wed Jun 3 12:00:02 2026 -0400
   
-      fix(dart): allow `. ... .` in chained method calls
+      feat(dart): accept multi-statement patterns via semgrep_statement_list
       
-      The polyglot `dots_method_chaining` pattern
+      Adds `semgrep_statement_list` (seq($._statement, repeat1($._statement)))
+      as a `_semgrep_pattern` arm, so polyglot patterns that consist of a
+      sequence of statements — `dots_stmts`, `metavar_equality_var` and
+      similar — parse cleanly via the `__SEMGREP_EXPRESSION` entry point.
       
-          $X = $O.foo(). ... .bar(). ...
+      Previously, only single-expression or single-statement patterns fit
+      into `_semgrep_pattern`. A multi-statement polyglot like
       
-      did not parse with Dart's grammar: the base `selector` rule accepts
-      `_assignable_selector | argument_part | type_arguments | !`, and none
-      of those can match a bare `...` between chain segments. Pattern authors
-      had to write a Dart-specific override or accept a `dots_method_chaining`
-      exception in the GA maturity tests for Dart.
+          $V = get();
+          ...
+          eval($V);
       
-      Add a `semgrep_dot_ellipsis_selector` rule (`seq('.', $.semgrep_ellipsis)`)
-      to the semgrep-dart extension and graft it into `selector` so it
-      interleaves naturally between real `.foo()` / `.bar()` calls.
+      fell back to parsing as a regular Dart program, which Dart's grammar
+      greedily parsed as a top-level function declaration (`$V` as return
+      type, `get` as method name) instead of an expression statement. The
+      new statement-list arm sidesteps that ambiguity by anchoring the
+      multi-statement form to `__SEMGREP_EXPRESSION` explicitly.
       
-      Add `lang/dart/test/ok/chained_call_ellipsis.dart` to pin the new
+      Requires at least two statements so the single-statement case keeps
+      using `$._statement` (avoids a parse-tree ambiguity between the two
+      arms when only one statement is present).
+      
+      Add `lang/dart/test/ok/statement_list_pattern.dart` to pin the new
       parse path.
 ---
