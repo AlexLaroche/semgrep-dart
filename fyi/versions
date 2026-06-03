@@ -96,47 +96,28 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-dart/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 36b5985c389aaadcf18425db8cf99290e28c9e09
+Latest commit in repo: e8c4f61fadf41268ed4509bf08d5bf537ec8e402
 Last change in file:
-  commit 36b5985c389aaadcf18425db8cf99290e28c9e09
+  commit e8c4f61fadf41268ed4509bf08d5bf537ec8e402
   Author: Alexandre Laroche <larochealexandre@hotmail.com>
-  Date:   Fri May 8 15:14:01 2026 -0400
+  Date:   Wed Jun 3 08:56:13 2026 -0400
   
-      fix(dart): bump tree-sitter-dart to upstream master (02e9bb19) (#590)
+      fix(dart): allow `. ... .` in chained method calls
       
-      * fix(dart): bump tree-sitter-dart to upstream master (02e9bb19)
+      The polyglot `dots_method_chaining` pattern
       
-      Brings in 13 upstream commits since the May 2023 pin (80e23c07): the
-      parser-improvements PR (#97), the Dart 3.10 dot-shorthand support
-      (#93), get/set contextual keyword fixes (#89, #92), the
-      extension-type-declarations support (#83), the CI/tree-sitter 0.25
-      compatibility fixes, and the recently-merged record-return + leading
-      annotation fix (#98).
+          $X = $O.foo(). ... .bar(). ...
       
-      * fix(semgrep-dart): hide `semgrep_pattern` choice rule
+      did not parse with Dart's grammar: the base `selector` rule accepts
+      `_assignable_selector | argument_part | type_arguments | !`, and none
+      of those can match a bare `...` between chain segments. Pattern authors
+      had to write a Dart-specific override or accept a `dots_method_chaining`
+      exception in the GA maturity tests for Dart.
       
-      The wrapper grammar declared `semgrep_pattern` as a public rule:
+      Add a `semgrep_dot_ellipsis_selector` rule (`seq('.', $.semgrep_ellipsis)`)
+      to the semgrep-dart extension and graft it into `selector` so it
+      interleaves naturally between real `.foo()` / `.bar()` calls.
       
-        semgrep_pattern: $ => choice($._expression, $._statement),
-      
-      so tree-sitter emitted a `(semgrep_pattern …)` node in the parse tree.
-      Two corpus tests in `test/corpus/semgrep.txt` (`Standalone expression`
-      and `Standalone metavariable ellipsis`) wrote their expected output
-      without that wrapper, so they failed. The wrapper node carries no
-      semantic information — it's just a choice point between two
-      alternatives.
-      
-      Rename to `_semgrep_pattern` (leading underscore = tree-sitter's
-      hidden-rule convention). The parse tree now inlines the choice's
-      result directly under `semgrep_expression`, the corpus tests pass as
-      written, and `ocaml-tree-sitter simplify` un-hides the rule before
-      generating the OCaml CST so the downstream artifact (and the OCaml
-      mapper) is unaffected.
-      
-      Verified: `cd lang/semgrep-grammars/src/semgrep-dart && tree-sitter
-      test` — 6/6 pass (was 4/6). Also re-ran the full
-      `lang/dart` artifact build: regenerated `parser.c`, `Boilerplate.ml`,
-      `CST.ml`, `Parse.ml` are byte-identical to the pre-change versions
-      (simplification re-introduces the rule for OCaml processing), so no
-      downstream artifact change is needed.
+      Add `lang/dart/test/ok/chained_call_ellipsis.dart` to pin the new
+      parse path.
 ---
